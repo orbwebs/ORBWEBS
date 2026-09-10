@@ -1,0 +1,72 @@
+================================================================================
+                    PROPRIETARY AND CONFIDENTIAL LEGAL NOTICE
+================================================================================
+                COPYRIGHT (C) 2026 "ORBWEBS" - ALL RIGHTS RESERVED.
+================================================================================
+
+This legal instrument governs all intellectual property, proprietary data, 
+and associated rights comprised within this repository. Access, possession, 
+or review of this repository does not convey any title or license.
+
+1. PROPRIETARY RIGHTS, TRADE SECRETS, AND SCOPE
+This repository, including without limitation all underlying source code, 
+object code, binary distributions, architectural designs, structural patterns, 
+data models, database schemas, proprietary algorithms, API interfaces, network 
+topologies, documentation, graphic assets, and associated developmental artifacts 
+(collectively designated and defined herein as the "Work"), constitutes the sole, 
+exclusive, non-transferable, and confidential proprietary property of the entity 
+designated as "ORBWEBS". The Work embodies trade secrets of vital commercial and 
+strategic value protected under domestic and international law.
+
+2. ABSOLUTE RESTRICTIONS ON USE AND EXPLOITATION
+No license, conveyance, permission, title, or right of any kind—whether express, 
+implied, statutory, equitable, or otherwise—is conveyed to any natural or legal 
+entity. Absolute title remains vested in "ORBWEBS". In the absence of prior, 
+direct, express, and formal written authorization executed by "ORBWEBS", you 
+shall not, directly or indirectly:
+   (a) Copy, duplicate, reproduce, modify, translate, adapt, distribute, publish, 
+       broadcast, license, sublicense, or publicly display any part of the Work;
+   (b) Decompile, disassemble, reverse engineer, decrypt, de-obfuscate, unpack, 
+       or attempt to derive or reconstruct the human-readable source code or 
+       underlying operational algorithms;
+   (c) Produce, engineer, manufacture, or market derivative works, commercial 
+       implementations, competitive platforms, or integrations based on the Work;
+   (d) Deploy, execute, or permit automated scraping, indexing, harvesting, 
+       data mining, extraction scripts, or automated crawlers across this repository;
+   (e) Ingest, process, vectorize, tokenize, benchmark, evaluate, or utilize any 
+       portion of the Work for the purpose of training, tuning, aligning, or 
+       fine-tuning any artificial intelligence (AI), machine learning (ML), large 
+       language model (LLM), neural network, or computational heuristic system.
+
+3. CONFIDENTIALITY AND COVENANT OF NON-DISCLOSURE
+The Work represents classified trade secrets and confidential information belonging 
+strictly to "ORBWEBS". Any unauthorized retrieval, interception, viewing, leakage, 
+exfiltration, transmission, or dissemination constitutes a deliberate breach of 
+confidentiality, an act of intellectual property theft, and an actionable tort 
+under statutory trade secret protection frameworks and international treaties.
+
+4. DISCLAIMER OF WARRANTY AND LIMITATION OF LIABILITY
+THE WORK IS DELIVERED AND RETAINED STRICTLY "AS IS" AND "AS AVAILABLE", DEVOID OF 
+ANY REPRESENTATION OR WARRANTY WHATSOEVER. TO THE MAXIMUM EXTENT PERMITTED BY LAW, 
+"ORBWEBS" EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS, STATUTORY, OR IMPLIED, 
+INCLUDING, WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+SPECIFIC INTENDED PURPOSE, TITLE, ACCURACY, AND NON-INFRINGEMENT. UNDER NO 
+CIRCUMSTANCES SHALL "ORBWEBS", ITS FOUNDERS, OPERATORS, OR AFFILIATES BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, EXEMPLARY, PUNITIVE, SPECIAL, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING PROCUREMENT OF SUBSTITUTE SERVICES, LOSS OF OPERATIONAL CONTINUITY, 
+OR CORRUPTION OF ASSETS) ARISING OUT OF OR IN CONNECTION WITH THE WORK.
+
+5. STATUTORY ENFORCEMENT, JURISDICTION, AND REMEDIES
+Any breach or anticipated breach of these covenants by any party will result in 
+immediate, uncompromising civil litigation and statutory criminal prosecution. 
+"ORBWEBS" reserves the right to pursue preliminary and permanent injunctive relief, 
+disgorgement of illicit profits, actual damages, statutory damages, and legal costs 
+under applicable intellectual property legislation, the Berne Convention for the 
+Protection of Literary and Artistic Works, the Paris Convention, and the World 
+Intellectual Property Organization (WIPO) Copyright Treaty.
+
+6. OFFICIAL ADMINISTRATIVE AND LICENSING INQUIRIES
+All communications concerning authorization requests, partnership inquiries, or 
+contractual disclosures must be submitted formally in writing to the authorized 
+administrative account presiding over the "ORBWEBS" master repository.
+================================================================================
