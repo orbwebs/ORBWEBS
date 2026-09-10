@@ -1,0 +1,181 @@
+# ==============================================================================
+# ORBWEBS / USWORK.NET — ZERO-LEAK EXCLUSION MATRIX
+# L1 PREVENTIVE STAGING DEFENSE (DEFENSE-IN-DEPTH LAYER 1)
+# ==============================================================================
+# NON-BYPASS LIMITATIONS:
+# 1. This file is a PREVENTIVE CONTROL at the local staging index (git add).
+# 2. It does NOT retroactively un-track previously committed objects.
+# 3. It does NOT inspect internal file content for committed credentials.
+# 4. It can be bypassed via forced commands (git add -f).
+# 5. Must be coupled with L2 Pre-commit hooks and L3 GitHub Push Protection.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. SECRETS, ENCRYPTION KEYS & CERTIFICATES
+# ------------------------------------------------------------------------------
+*.pem
+*.key
+*.pkcs12
+*.p12
+*.pfx
+*.asc
+*.gpg
+*.crt
+*.csr
+*.der
+id_rsa
+id_rsa.pub
+id_ecdsa
+id_ecdsa.pub
+id_ed25519
+id_ed25519.pub
+*.keystore
+*.jks
+AuthKey_*.p8
+
+# ------------------------------------------------------------------------------
+# 2. ENVIRONMENT CONFIGURATIONS & RUNTIME SECRETS
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+*.env
+*.local.env
+
+# ------------------------------------------------------------------------------
+# 3. CLOUD PROVIDER CREDENTIALS & INFRASTRUCTURE AS CODE
+# ------------------------------------------------------------------------------
+.aws/
+.gcp/
+.azure/
+credentials
+credentials.json
+service-account*.json
+kubeconfig
+.kube/
+
+# Terraform state isolation (explicitly preserve lockfile for reproducibility)
+*.tfstate
+*.tfstate.*
+.terraform/
+!.terraform.lock.hcl
+
+# Helm isolation (explicitly preserve lockfile)
+charts/*.tgz
+!Chart.lock
+
+# ------------------------------------------------------------------------------
+# 4. DATABASE COLD DUMPS & TRANSIENT STORAGE
+# ------------------------------------------------------------------------------
+# Targeted patterns: allows structured migrations in database/migrations/*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.rdb
+*.dump
+backup-*
+dump-*
+*.sql.gz
+*.sql.tar.gz
+
+# ------------------------------------------------------------------------------
+# 5. API TESTING SENSITIVE ARTIFACTS & AUTH SESSIONS
+# ------------------------------------------------------------------------------
+.postman_environment.json
+postman_environment.json
+insomnia.Workspace.*.json
+*.insomnia.json
+*.har
+
+# ------------------------------------------------------------------------------
+# 6. MOBILE & CODE-SIGNING CREDENTIALS
+# ------------------------------------------------------------------------------
+*.mobileprovision
+*.provisionprofile
+GoogleService-Info.plist
+google-services.json
+
+# ------------------------------------------------------------------------------
+# 7. AI/ML MODEL BINARIES & TENSORS (STORAGE BOUND)
+# ------------------------------------------------------------------------------
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.h5
+/models/weights/
+/checkpoints/
+
+# ------------------------------------------------------------------------------
+# 8. CRASH DUMPS, PROCESS ARTIFACTS & SYSTEM LOGS
+# ------------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+core
+core.*
+*.dmp
+*.crash
+
+# ------------------------------------------------------------------------------
+# 9. SHELL, CLI & COMMAND HISTORIES
+# ------------------------------------------------------------------------------
+.*history
+.bash_history
+.zsh_history
+.ps_history
+.node_repl_history
+.python_history
+
+# ------------------------------------------------------------------------------
+# 10. BULK COMPRESSED ARCHIVES & EXPORT BUNDLES
+# ------------------------------------------------------------------------------
+private-exports/
+emergency-bundles/
+export-*
+backup-*
+snapshot-*
+vault-*
+handoff-*
+*.rar
+*.7z
+backup-*.zip
+archive-*.zip
+backup-*.tar.gz
+dump-*.tar.gz
+
+# ------------------------------------------------------------------------------
+# 11. RUNTIME DEPENDENCIES & PACKAGE CACHES
+# ------------------------------------------------------------------------------
+node_modules/
+vendor/
+__pycache__/
+*.py[cod]
+.venv/
+env/
+venv/
+dist/
+build/
+.next/
+.nuxt/
+target/
+
+# ------------------------------------------------------------------------------
+# 12. OPERATING SYSTEM & IDE ARTIFACTS
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
