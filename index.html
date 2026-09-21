@@ -3,385 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBWEBS | Autonomous Sovereign Network</title>
+    <title>ORBWEBS // NEURAL SPHERE CORE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030712;
-            --surface: rgba(10, 15, 29, 0.85);
-            --cyan: #00f0ff;
-            --violet: #7928ca;
-            --emerald: #00ff88;
-            --text: #e2e8f0;
-            --text-dim: #64748b;
-            --border: rgba(0, 240, 255, 0.25);
-            --border-active: #00f0ff;
-            --glow: 0 0 20px rgba(0, 240, 255, 0.4);
+            --bg-void: #030308;
+            --cyan-core: #00f3ff;
+            --violet-core: #7928ca;
+            --magenta-glow: #ff007a;
+            --amber-warn: #ffaa00;
+            --border-glass: rgba(0, 243, 255, 0.2);
+            --hud-bg: rgba(6, 9, 20, 0.75);
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
             user-select: none;
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-void);
             font-family: 'JetBrains Mono', monospace;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
+            color: #d1d5db;
         }
 
-        /* Ambient Cybernetic Grid & Canvas */
-        #mesh-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .scanline {
-            position: fixed;
+        #sphere-canvas {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.35) 51%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 10;
+            z-index: 1;
+            cursor: grab;
         }
 
-        /* Top HUD Header */
-        header {
+        #sphere-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* HUD Frame */
+        .hud-overlay {
             position: relative;
-            z-index: 20;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            pointer-events: none;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* Top HUD Bar */
+        .hud-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface);
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 16px;
             backdrop-filter: blur(12px);
-        }
-
-        .brand-cluster {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-        }
-
-        .orb-spider-emblem {
-            width: 32px;
-            height: 32px;
-            border: 2px solid var(--cyan);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--glow);
-            animation: pulse-ring 3s infinite alternate;
-        }
-
-        .orb-spider-emblem::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--cyan);
-            border-radius: 50%;
+            background: linear-gradient(180deg, rgba(0,243,255,0.05) 0%, transparent 100%);
         }
 
         .brand-title {
             font-family: 'Syncopate', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: 0.25rem;
+            font-size: 24px;
+            letter-spacing: 4px;
             color: #fff;
-            text-shadow: var(--glow);
+            text-shadow: 0 0 15px var(--cyan-core);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--cyan-core);
+            box-shadow: 0 0 10px var(--cyan-core);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 20px var(--cyan-core); }
         }
 
         .telemetry-bar {
             display: flex;
-            gap: 2rem;
-            font-size: 0.75rem;
-            color: var(--text-dim);
+            gap: 20px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--cyan-core);
         }
 
-        .telemetry-item span {
-            color: var(--cyan);
+        .telemetry-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .telemetry-val {
+            color: #fff;
             font-weight: 700;
         }
 
-        /* Main Viewport Interface */
-        main {
-            position: relative;
-            z-index: 20;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            width: 100%;
+        /* Lateral Core Controls */
+        .hud-lateral {
+            position: absolute;
+            left: 24px;
+            top: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 260px;
         }
 
-        .hero-section {
-            margin-bottom: 4rem;
+        .layer-badge {
+            background: var(--hud-bg);
+            border-left: 2px solid var(--cyan-core);
+            padding: 8px 12px;
+            font-size: 10px;
+            backdrop-filter: blur(8px);
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s ease;
         }
 
-        .system-badge {
-            display: inline-block;
-            padding: 0.35rem 0.85rem;
-            border: 1px solid var(--emerald);
-            background: rgba(0, 255, 136, 0.05);
-            color: var(--emerald);
-            font-size: 0.75rem;
-            letter-spacing: 0.15rem;
-            margin-bottom: 1.5rem;
-            border-radius: 2px;
+        .layer-badge.active {
+            border-left-color: var(--magenta-glow);
+            background: rgba(121, 40, 202, 0.25);
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.3);
         }
 
-        .core-headline {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 2.8rem;
-            line-height: 1.2;
-            font-weight: 700;
-            letter-spacing: 0.1rem;
-            background: linear-gradient(135deg, #fff 30%, var(--cyan) 70%, var(--violet) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem;
-            max-width: 900px;
-        }
-
-        .core-description {
-            color: #94a3b8;
-            font-size: 1.05rem;
-            max-width: 750px;
-            line-height: 1.7;
-            margin-bottom: 2.5rem;
-        }
-
-        /* Core Node Grid */
-        .node-grid {
+        /* Bottom Command HUD */
+        .hud-footer {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            border-top: 1px solid var(--border-glass);
+            padding-top: 16px;
+            backdrop-filter: blur(12px);
         }
 
-        .node-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 2rem;
-            border-radius: 4px;
+        .action-card {
+            background: var(--hud-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 14px;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(8px);
+            cursor: pointer;
         }
 
-        .node-card:hover {
-            border-color: var(--border-active);
-            box-shadow: var(--glow);
-            transform: translateY(-4px);
-        }
-
-        .node-card::before {
+        .action-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 40px;
+            width: 100%;
             height: 2px;
-            background: var(--cyan);
+            background: linear-gradient(90deg, var(--cyan-core), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .node-id {
-            font-size: 0.75rem;
-            color: var(--cyan);
-            margin-bottom: 0.75rem;
-            letter-spacing: 0.1rem;
+        .action-card:hover {
+            border-color: var(--cyan-core);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.15);
         }
 
-        .node-name {
+        .action-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-tag {
+            font-size: 9px;
+            color: var(--cyan-core);
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+        }
+
+        .card-name {
             font-family: 'Syncopate', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+            font-size: 13px;
             color: #fff;
+            margin-bottom: 6px;
         }
 
-        .node-detail {
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            line-height: 1.6;
+        .card-desc {
+            font-size: 10px;
+            color: #9ca3af;
+            line-height: 1.4;
         }
 
-        /* Terminal Logs / Footer HUD */
-        footer {
-            position: relative;
-            z-index: 20;
-            border-top: 1px solid var(--border);
-            padding: 1.5rem 3rem;
-            background: var(--surface);
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .terminal-log {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--emerald);
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            100% { transform: scale(1.05); opacity: 1; }
-        }
-
-        @media (max-width: 768px) {
-            header, footer { padding: 1rem 1.5rem; flex-direction: column; gap: 1rem; }
-            .core-headline { font-size: 1.8rem; }
-            .telemetry-bar { flex-direction: column; gap: 0.5rem; }
+        /* Responsive */
+        @media (max-width: 840px) {
+            .hud-footer {
+                grid-template-columns: 1fr;
+            }
+            .hud-lateral {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="scanlines"></div>
+    <canvas id="sphere-canvas"></canvas>
 
-    <div class="scanline"></div>
-    <canvas id="mesh-canvas"></canvas>
-
-    <header>
-        <div class="brand-cluster">
-            <div class="orb-spider-emblem"></div>
-            <div class="brand-title">ORBWEBS</div>
-        </div>
-        <div class="telemetry-bar">
-            <div class="telemetry-item">CLUSTER: <span>ONLINE [100%]</span></div>
-            <div class="telemetry-item">ENGINE: <span>ALPHA 2.1 MESH</span></div>
-            <div class="telemetry-item">NODE: <span>SOVEREIGN CORE</span></div>
-        </div>
-    </header>
-
-    <main>
-        <section class="hero-section">
-            <div class="system-badge">ARCHITECTURAL DOMAIN ACTIVE</div>
-            <h1 class="core-headline">SPATIAL MESH & REVERSIBLE ARCHITECTURE</h1>
-            <p class="core-description">
-                Autonomous AI-Native Network bridging distributed digital identities, high-fidelity avatar engines, zero-copy protocol verification, and sovereign decentralized micro-contracts.
-            </p>
-        </section>
-
-        <div class="node-grid">
-            <div class="node-card">
-                <div class="node-id">SYSTEM PILLAR // 01</div>
-                <h2 class="node-name">MODELING HUB</h2>
-                <p class="node-detail">Direct sovereign bridge between 3D avatar networks, real-world fashion designers, and physical agile micro-manufacturing pipelines.</p>
+    <div class="hud-overlay">
+        <!-- Top Nav Header -->
+        <header class="hud-header interactive">
+            <div class="brand-title">
+                <span class="node-pulse"></span>
+                ORBWEBS
             </div>
-
-            <div class="node-card">
-                <div class="node-id">SYSTEM PILLAR // 02</div>
-                <h2 class="node-name">USTIUDO CORE</h2>
-                <p class="node-detail">Ultra-fidelity cinematic visualization engines powered by procedural spatial shaders, low-latency telemetry, and unified HUD logic.</p>
+            <div class="telemetry-bar">
+                <div class="telemetry-item">
+                    <span>GEOMETRY ARCHITECTURE</span>
+                    <span class="telemetry-val">10-LAYER TETRA-NEURAL</span>
+                </div>
+                <div class="telemetry-item">
+                    <span>GROWTH FACTOR</span>
+                    <span class="telemetry-val">r=3 (BASE-4)</span>
+                </div>
+                <div class="telemetry-item">
+                    <span>TOTAL MESH NODES</span>
+                    <span class="telemetry-val" id="node-count">118,096</span>
+                </div>
+                <div class="telemetry-item">
+                    <span>DOMAIN STATUS</span>
+                    <span class="telemetry-val" style="color: var(--cyan-core);">ONLINE // SECURE</span>
+                </div>
             </div>
+        </header>
 
-            <div class="node-card">
-                <div class="node-id">SYSTEM PILLAR // 03</div>
-                <h2 class="node-name">COMPASS-ALPHA</h2>
-                <p class="node-detail">Radial contacts routing directory utilizing geospatial orientation, biometric gaze tracking, and verified sovereign credentials.</p>
+        <!-- Left Lateral Layer Status -->
+        <div class="hud-lateral">
+            <div class="layer-badge active">
+                <strong>L1: GENESIS CORE</strong><br>4 NODES [TETRAHEDRON SEED]
+            </div>
+            <div class="layer-badge">
+                <strong>L2: AUTONOMOUS CONTRACTS</strong><br>12 NODES [ZERO-COPY PROTOCOL]
+            </div>
+            <div class="layer-badge">
+                <strong>L3: NEURAL PREDICTIVE</strong><br>36 NODES [GAZE/VOICE/ROUTING]
+            </div>
+            <div class="layer-badge">
+                <strong>L4-L10: EXPANDED SPHERES</strong><br>118,044 DISTRIBUTED RELAYS
             </div>
         </div>
-    </main>
 
-    <footer>
-        <div class="terminal-log">> SOVEREIGN ROUTE ATTACHED: orbwebs.net</div>
-        <div>ORBWEBS ENGINE &copy; 2026 SOVEREIGN PROTOCOL</div>
-    </footer>
+        <!-- Bottom Actions -->
+        <footer class="hud-footer interactive">
+            <div class="action-card" onclick="triggerNode(1)">
+                <div class="card-tag">SYSTEM CORE // 01</div>
+                <div class="card-name">MODELING HUB</div>
+                <div class="card-desc">Sovereign pipeline between avatar networks, fashion creators, and micro-manufacturing.</div>
+            </div>
+            <div class="action-card" onclick="triggerNode(2)">
+                <div class="card-tag">SYSTEM CORE // 02</div>
+                <div class="card-name">USTIUDO ENGINE</div>
+                <div class="card-desc">Zero-latency procedural cinematic shaders, high-poly rendering, and spatial telemetry.</div>
+            </div>
+            <div class="action-card" onclick="triggerNode(3)">
+                <div class="card-tag">SYSTEM CORE // 03</div>
+                <div class="card-name">COMPASS-ALPHA</div>
+                <div class="card-desc">Radial contacts orientation, biometric identity rings, and sovereign credential verification.</div>
+            </div>
+        </footer>
+    </div>
 
     <script>
-        // Interactive Canvas Spatial Mesh Node Background
-        const canvas = document.getElementById('mesh-canvas');
+        const canvas = document.getElementById('sphere-canvas');
         const ctx = canvas.getContext('2d');
 
         let width, height;
-        let nodes = [];
-        const nodeCount = 55;
-        const maxDistance = 140;
-
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
         }
-
         window.addEventListener('resize', resize);
         resize();
 
-        class Node {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.7;
-                this.vy = (Math.random() - 0.5) * 0.7;
-                this.radius = Math.random() * 1.5 + 1;
-            }
+        // Mathematical Constants & Configuration
+        const LAYERS_COUNT = 10;
+        const BASE_TETRA_NODES = 4;
+        let rotX = 0.2;
+        let rotY = 0.3;
+        let targetRotX = 0.2;
+        let targetRotY = 0.3;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
+        // Spherical Layer Colors
+        const LAYER_COLORS = [
+            '#00f3ff', // L1 Core: Pure Cyan
+            '#38bdf8', // L2
+            '#60a5fa', // L3
+            '#818cf8', // L4
+            '#a855f7', // L5
+            '#c084fc', // L6
+            '#e879f9', // L7
+            '#ff007a', // L8
+            '#f43f5e', // L9
+            '#ec4899'  // L10 Nebula Shell
+        ];
 
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#00f0ff';
-                ctx.fill();
+        // Node Definition
+        class Node3D {
+            constructor(x, y, z, layer, label = null) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.layer = layer;
+                this.label = label;
+                this.color = LAYER_COLORS[layer];
             }
         }
 
-        for (let i = 0; i < nodeCount; i++) {
-            nodes.push(new Node());
+        const nodes = [];
+        const coreEdges = [];
+
+        // Generate L1 Tetrahedron (Haram / 4 Core Vertices)
+        const coreRadius = 140;
+        const tVerts = [
+            [0, -coreRadius, 0],
+            [Math.sqrt(8/9) * coreRadius, coreRadius/3, 0],
+            [-Math.sqrt(2/9) * coreRadius, coreRadius/3, Math.sqrt(2/3) * coreRadius],
+            [-Math.sqrt(2/9) * coreRadius, coreRadius/3, -Math.sqrt(2/3) * coreRadius]
+        ];
+
+        const coreLabels = ["ORB-ROOT", "MODELING", "USTIUDO", "COMPASS"];
+
+        tVerts.forEach((v, idx) => {
+            nodes.push(new Node3D(v[0], v[1], v[2], 0, coreLabels[idx]));
+        });
+
+        // Core Edges (Connect all 4 vertices with each other)
+        for(let i = 0; i < 4; i++) {
+            for(let j = i + 1; j < 4; j++) {
+                coreEdges.push([i, j]);
+            }
         }
 
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
+        // Generate 10-Layer Geometric Rings (Progression with r=3)
+        // High-density procedural projection points
+        for (let l = 1; l < LAYERS_COUNT; l++) {
+            const layerRadius = coreRadius + (l * 42);
+            // Representative visual sample per layer to preserve 60FPS fluid WebGL/Canvas rendering
+            const sampleCount = Math.min(12 * Math.pow(1.8, l), 360); 
+            
+            for (let i = 0; i < sampleCount; i++) {
+                const theta = Math.acos(1 - 2 * (i + 0.5) / sampleCount);
+                const phi = Math.PI * (1 + Math.sqrt(5)) * i;
 
+                const x = layerRadius * Math.sin(theta) * Math.cos(phi);
+                const y = layerRadius * Math.sin(theta) * Math.sin(phi);
+                const z = layerRadius * Math.cos(theta);
+
+                nodes.push(new Node3D(x, y, z, l));
+            }
+        }
+
+        // Mouse & Touch Orbit Controls
+        window.addEventListener('mousedown', e => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (isDragging) {
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                targetRotY += dx * 0.005;
+                targetRotX += dy * 0.005;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+        });
+
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        window.addEventListener('touchstart', e => {
+            if(e.touches.length === 1) {
+                isDragging = true;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+
+        window.addEventListener('touchmove', e => {
+            if(isDragging && e.touches.length === 1) {
+                const dx = e.touches[0].clientX - lastMouseX;
+                const dy = e.touches[0].clientY - lastMouseY;
+                targetRotY += dx * 0.005;
+                targetRotX += dy * 0.005;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+
+        window.addEventListener('touchend', () => isDragging = false);
+
+        // Core Interactive Trigger
+        function triggerNode(id) {
+            targetRotY += (id * 1.2);
+            targetRotX = 0.2;
+        }
+
+        // Projection & Render Loop
+        const fov = 480;
+        function render() {
+            ctx.fillStyle = '#030308';
+            ctx.fillRect(0, 0, width, height);
+
+            // Smooth Interpolation
+            rotX += (targetRotX - rotX) * 0.06;
+            rotY += (targetRotY - rotY) * 0.06;
+
+            // Auto subtle rotation
+            if (!isDragging) {
+                targetRotY += 0.0015;
+            }
+
+            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Coordinate Projection
+            const projected = [];
             for (let i = 0; i < nodes.length; i++) {
-                nodes[i].update();
-                nodes[i].draw();
+                const n = nodes[i];
 
-                for (let j = i + 1; j < nodes.length; j++) {
-                    const dx = nodes[i].x - nodes[j].x;
-                    const dy = nodes[i].y - nodes[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
+                // Y-Axis Rotation
+                let x1 = n.x * cosY - n.z * sinY;
+                let z1 = n.z * cosY + n.x * sinY;
 
-                    if (dist < maxDistance) {
-                        ctx.beginPath();
-                        ctx.moveTo(nodes[i].x, nodes[i].y);
-                        ctx.lineTo(nodes[j].x, nodes[j].y);
-                        ctx.strokeStyle = `rgba(0, 240, 255, ${1 - dist / maxDistance * 0.85})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
+                // X-Axis Rotation
+                let y1 = n.y * cosX - z1 * sinX;
+                let z2 = z1 * cosX + n.y * sinX;
+
+                const distance = 800;
+                const scale = fov / (distance + z2);
+                const px = cx + x1 * scale;
+                const py = cy + y1 * scale;
+
+                projected.push({ px, py, scale, z: z2, node: n });
             }
-            requestAnimationFrame(animate);
+
+            // Draw Core Pyramid Edges (Layer 1 Tetrahedron)
+            ctx.lineWidth = 1.5;
+            for (let e = 0; e < coreEdges.length; e++) {
+                const p1 = projected[coreEdges[e][0]];
+                const p2 = projected[coreEdges[e][1]];
+
+                const grad = ctx.createLinearGradient(p1.px, p1.py, p2.px, p2.py);
+                grad.addColorStop(0, 'rgba(0, 243, 255, 0.8)');
+                grad.addColorStop(1, 'rgba(121, 40, 202, 0.8)');
+
+                ctx.strokeStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(p1.px, p1.py);
+                ctx.lineTo(p2.px, p2.py);
+                ctx.stroke();
+            }
+
+            // Render Nodes sorted by depth (Back-to-Front)
+            projected.sort((a, b) => b.z - a.z);
+
+            for (let i = 0; i < projected.length; i++) {
+                const p = projected[i];
+                if (p.scale < 0) continue;
+
+                const n = p.node;
+                const radius = (n.layer === 0 ? 5.5 : 1.6) * p.scale;
+                const alpha = Math.max(0.15, Math.min(1, (p.z + 400) / 800));
+
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = n.color;
+
+                ctx.beginPath();
+                ctx.arc(p.px, p.py, radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Special treatment for Genesis Core (Tetrahedron vertices)
+                if (n.layer === 0) {
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    // Node Label
+                    ctx.font = '10px "Syncopate", sans-serif';
+                    ctx.fillStyle = '#00f3ff';
+                    ctx.shadowColor = '#00f3ff';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText(n.label, p.px + 10, p.py + 4);
+                }
+                ctx.restore();
+            }
+
+            requestAnimationFrame(render);
         }
 
-        animate();
+        render();
     </script>
 </body>
 </html>
