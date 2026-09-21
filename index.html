@@ -1,32 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ORBWEBS // Spatial Web OS & Sovereign Mesh</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORBWEBS // Autonomous Spatial Coliseum & Sovereign Production Mesh</title>
 
-  <!-- Google Fonts: Syncopate, Space Grotesk, Inter -->
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@500;700&family=Syncopate:wght@700;800&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            charcoal: '#05070b',
-            orbCyan: '#00e5ff',
-            orbPurple: '#8a2be2',
-            slateMuted: 'rgba(255, 255, 255, 0.45)',
+            void: "#030407",
+            orbCyan: "#00e5ff",
+            orbPurple: "#8a2be2",
+            orbGold: "#ffd700",
+            orbDark: "#070a12",
+            cardGlass: "rgba(7, 10, 18, 0.75)"
           },
           fontFamily: {
-            syncopate: ['"Syncopate"', 'sans-serif'],
-            space: ['"Space Grotesk"', 'monospace'],
-            inter: ['"Inter"', 'sans-serif'],
+            syncopate: ["Syncopate", "sans-serif"],
+            outfit: ["Outfit", "sans-serif"],
+            jakarta: ["Plus Jakarta Sans", "sans-serif"],
+            space: ["Space Grotesk", "monospace"]
           }
         }
       }
@@ -34,323 +40,499 @@
   </script>
 
   <style>
-    /* Technical Grid Overlay: 60px x 60px with Cyan/Purple hints */
-    .bg-grid-tech {
+    :root {
+      --cyan: #00e5ff;
+      --purple: #8a2be2;
+      --gold: #ffd700;
+      --void: #030407;
+    }
+
+    body {
+      background-color: var(--void);
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      selection-background-color: var(--cyan);
+      selection-color: #000;
+    }
+
+    /* Scanlines Overlay */
+    .scanlines {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    /* Grid background */
+    .cyber-grid {
       background-size: 60px 60px;
       background-image: 
-        linear-gradient(to right, rgba(0, 229, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+        linear-gradient(to right, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(138, 43, 226, 0.04) 1px, transparent 1px);
     }
 
-    /* Radial Vignette Overlay */
-    .vignette-overlay {
-      background: radial-gradient(circle at center, rgba(5, 7, 11, 0.4) 0%, rgba(5, 7, 11, 0.94) 100%);
+    .glass-panel {
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,229,255,0.01));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 229, 255, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 20px 50px rgba(0,0,0,0.6);
     }
 
-    /* HUD Corner Brackets */
-    .hud-bracket {
+    .glass-panel:hover {
+      border-color: rgba(0, 229, 255, 0.5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 30px rgba(0,229,255,0.15);
+    }
+
+    .glow-cyan {
+      text-shadow: 0 0 15px rgba(0, 229, 255, 0.6), 0 0 30px rgba(0, 229, 255, 0.2);
+    }
+
+    .glow-purple {
+      text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+    }
+
+    .primary-btn {
       position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(138, 43, 226, 0.08));
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .bracket-tr {
-      position: absolute;
-      top: -1px;
-      right: -1px;
-      width: 8px;
-      height: 8px;
-      border-top: 2px solid rgba(0, 229, 255, 0.6);
-      border-right: 2px solid rgba(0, 229, 255, 0.6);
-      pointer-events: none;
+
+    .primary-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: var(--cyan);
+      box-shadow: 0 0 35px rgba(0, 229, 255, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.2);
     }
-    .bracket-bl {
+
+    .primary-btn::after {
+      content: "";
       position: absolute;
-      bottom: -1px;
-      left: -1px;
-      width: 8px;
-      height: 8px;
-      border-bottom: 2px solid rgba(0, 229, 255, 0.6);
-      border-left: 2px solid rgba(0, 229, 255, 0.6);
-      pointer-events: none;
+      top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: skewX(-25deg);
+      transition: 0.6s ease;
+    }
+
+    .primary-btn:hover::after {
+      left: 150%;
     }
   </style>
 </head>
-<body class="bg-charcoal text-white font-inter antialiased overflow-x-hidden select-none">
 
-  <!-- HERO SECTION WRAPPER -->
-  <section class="relative w-full min-h-screen flex flex-col justify-between overflow-hidden">
+<body class="relative bg-void">
 
-    <!-- FULLSCREEN VIDEO BACKGROUND -->
-    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <video
-        id="hero-video"
-        autoplay
-        loop
-        muted
-        playsinline
-        class="w-full h-full object-cover scale-105 opacity-60"
-        src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/abstract-video.mp4"
-      ></video>
-    </div>
+  <!-- Scanlines & Mesh Grid Layer -->
+  <div class="fixed inset-0 scanlines z-40 pointer-events-none"></div>
+  <div class="fixed inset-0 cyber-grid z-0 pointer-events-none"></div>
+  <canvas id="warCanvas" class="fixed inset-0 z-0 pointer-events-none opacity-40"></canvas>
 
-    <!-- TECHNICAL GRID & RADIAL VIGNETTE OVERLAYS -->
-    <div class="absolute inset-0 z-[1] bg-grid-tech pointer-events-none"></div>
-    <div class="absolute inset-0 z-[2] vignette-overlay pointer-events-none"></div>
-
-    <!-- 1. TOP NAVIGATION BAR -->
-    <header class="relative z-30 w-full px-6 sm:px-12 lg:px-16 pt-8">
-      <div class="flex items-center justify-between pb-6 border-b border-white/10">
-        
-        <!-- Logo -->
-        <a href="#" class="flex items-center gap-3 group">
-          <div class="w-8 h-8 border border-orbCyan/50 flex items-center justify-center bg-orbCyan/10 transition-all duration-300 group-hover:border-orbCyan shadow-[0_0_15px_rgba(0,229,255,0.2)]">
-            <svg class="w-4 h-4 text-orbCyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 0 1 4 18M12 3a15.3 15.3 0 0 0-4 18"></path>
-            </svg>
-          </div>
-          <span class="font-syncopate font-bold text-sm tracking-[0.25s] text-white">ORBWEBS<span class="text-orbCyan">.OS</span></span>
+  <!-- ================= TOP HUD NAVIGATION ================= -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-void/80 backdrop-blur-xl border-b border-orbCyan/20">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- Brand & Sector Telemetry -->
+      <div class="flex items-center gap-4">
+        <a href="#" class="w-10 h-10 border border-orbCyan flex items-center justify-center bg-orbCyan/10 shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+          <i data-lucide="globe" class="w-5 h-5 text-orbCyan animate-pulse"></i>
         </a>
+        <div>
+          <span class="font-syncopate font-bold text-sm tracking-wider text-white">ORBWEBS</span>
+          <div class="text-[9px] font-space text-orbCyan/70 tracking-widest uppercase">Coliseum Mesh v9.4</div>
+        </div>
+      </div>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="hidden lg:flex items-center space-x-10 font-space text-[11px] tracking-[0.25em] text-white/70">
-          <a href="#spatial" class="transition-colors duration-200 hover:text-orbCyan">SPATIAL MESH</a>
-          <a href="#contracts" class="transition-colors duration-200 hover:text-orbCyan">CONTRACTS</a>
-          <a href="#nodes" class="transition-colors duration-200 hover:text-orbCyan">COMPASS-ALPHA</a>
-          <a href="#security" class="transition-colors duration-200 hover:text-orbCyan">SOVEREIGNTY</a>
-          <a href="#engage" class="transition-colors duration-200 hover:text-orbCyan">TRANSMIT</a>
-        </nav>
+      <!-- Tactical Navigation -->
+      <nav class="hidden lg:flex items-center gap-8 font-space text-[11px] tracking-[0.2em] uppercase text-white/70">
+        <a href="#arena" class="hover:text-orbCyan transition-colors">01// Arena Arena</a>
+        <a href="#layers" class="hover:text-orbCyan transition-colors">02// 4-Tier Matrix</a>
+        <a href="#manifesto" class="hover:text-orbCyan transition-colors">03// Whitepaper</a>
+        <a href="#about" class="hover:text-orbCyan transition-colors">04// High Council</a>
+      </nav>
 
-        <!-- Right Action Button -->
-        <div class="hidden sm:flex items-center">
-          <a href="#engage" class="relative inline-flex items-center justify-center px-6 py-2.5 font-space text-xs tracking-widest text-white uppercase border border-orbCyan/40 overflow-hidden group transition-all duration-300 hover:border-orbCyan">
-            <span class="relative z-10 flex items-center gap-2 group-hover:text-charcoal transition-colors duration-300">
-              INITIALIZE 
-              <span class="text-orbCyan group-hover:text-charcoal inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </span>
-            <div class="absolute inset-0 bg-orbCyan transform -translate-x-full transition-transform duration-300 ease-out group-hover:translate-x-0"></div>
+      <!-- Terminal Trigger -->
+      <div class="flex items-center gap-4">
+        <a href="#manifesto" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-[10px] font-space uppercase border border-orbPurple bg-orbPurple/10 text-white hover:bg-orbPurple/20 transition-all shadow-[0_0_15px_rgba(138,43,226,0.3)]">
+          <span class="w-2 h-2 rounded-full bg-orbCyan animate-ping"></span>
+          READ WHITEPAPER
+        </a>
+        <a href="#contact" class="primary-btn font-space text-[10px] uppercase font-bold text-white tracking-widest">
+          CONNECT NODE
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ARENA SECTION ================= -->
+  <section id="arena" class="relative pt-36 pb-24 min-h-screen flex items-center justify-center z-10">
+    <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- War Room Pitch: 7 Cols -->
+      <div class="lg:col-span-7">
+        <div class="inline-flex items-center gap-3 px-3 py-1.5 border border-orbCyan/30 bg-orbCyan/5 mb-6 font-space text-[10px] text-orbCyan tracking-widest uppercase">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+          GLOBAL SPATIAL SUPREMACY // ZERO CENTRAL TRUST
+        </div>
+
+        <h1 class="font-syncopate text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-none tracking-tight">
+          WHERE GLOBAL<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-orbCyan via-white to-orbPurple glow-cyan">ARCHITECTS</span><br>
+          WAGE ASSET WAR.
+        </h1>
+
+        <p class="mt-8 text-base sm:text-lg text-white/70 max-w-xl font-jakarta leading-relaxed">
+          ORBWEBS isn't another portfolio shell. It is the decentralized Spatial Web Operating System where verified sovereign identities, high-speed 3D render pipelines, and zero-copy hardware licenses battle for compute dominance.
+        </p>
+
+        <!-- Live Telemetry Counters -->
+        <div class="grid grid-cols-3 gap-6 my-10 py-6 border-y border-orbCyan/20">
+          <div>
+            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbCyan glow-cyan">0.08ms</div>
+            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Routing Latency</div>
+          </div>
+          <div>
+            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbPurple glow-purple">100%</div>
+            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Hardware Sovereign</div>
+          </div>
+          <div>
+            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbGold">14.8M+</div>
+            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Indexed Nodes</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4">
+          <a href="#layers" class="primary-btn font-space text-[11px] font-bold uppercase tracking-widest text-white">
+            EXPLORE THE 4-TIER MATRIX <i data-lucide="crosshair" class="w-4 h-4 text-orbCyan"></i>
+          </a>
+          <a href="#about" class="px-6 py-3.5 border border-white/20 font-space text-[11px] font-bold uppercase tracking-widest text-white/80 hover:border-orbCyan hover:text-white transition-all">
+            MEET THE HIGH COUNCIL
           </a>
         </div>
-
-        <!-- Mobile Drawer Toggle -->
-        <button id="mobile-toggle" aria-label="Toggle navigation" class="lg:hidden p-2 text-white/80 hover:text-white focus:outline-none">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16m-7 6h7"></path>
-          </svg>
-        </button>
       </div>
-    </header>
 
-    <!-- MOBILE DRAWER -->
-    <div id="mobile-drawer" class="fixed inset-y-0 right-0 w-72 bg-charcoal border-l border-white/10 z-50 p-8 flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out lg:hidden shadow-2xl">
-      <div>
-        <div class="flex items-center justify-between pb-6 border-b border-white/10">
-          <span class="font-syncopate font-bold text-xs tracking-widest text-orbCyan">ORBWEBS // NAV</span>
-          <button id="mobile-close" aria-label="Close navigation" class="p-1 text-white/60 hover:text-white">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
+      <!-- Coliseum HUD Radar / Node Globe: 5 Cols -->
+      <div class="lg:col-span-5 relative">
+        <div class="glass-panel p-6 relative rounded-none border-t-2 border-t-orbCyan">
+          <div class="flex items-center justify-between pb-4 border-b border-white/10 text-[10px] font-space text-white/60">
+            <span class="text-orbCyan flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orbCyan animate-ping"></span> RADIAL COMPASS ALPHA</span>
+            <span>POLAR COORD: 35.6892° N</span>
+          </div>
+
+          <!-- Holographic World Simulation Screen -->
+          <div class="relative h-80 my-4 bg-void/80 border border-orbCyan/20 flex flex-col items-center justify-center overflow-hidden">
+            <!-- Crosshairs -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-64 h-64 rounded-full border border-orbCyan/20 border-dashed animate-spin" style="animation-duration: 40s;"></div>
+              <div class="w-48 h-48 rounded-full border border-orbPurple/30"></div>
+              <div class="w-32 h-32 rounded-full border border-orbCyan/40"></div>
+              <div class="absolute h-full w-[1px] bg-orbCyan/15"></div>
+              <div class="absolute w-full h-[1px] bg-orbCyan/15"></div>
+            </div>
+
+            <!-- Central Core Node -->
+            <div class="relative z-10 text-center">
+              <div class="w-16 h-16 rounded-full bg-orbCyan/10 border-2 border-orbCyan flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(0,229,255,0.6)]">
+                <i data-lucide="cpu" class="w-8 h-8 text-orbCyan animate-pulse"></i>
+              </div>
+              <div class="font-space text-xs font-bold text-white mt-3 uppercase tracking-widest">KERNEL_CORE_V9</div>
+              <div class="text-[9px] font-space text-orbCyan">SYNCHRONIZING REVERSIBLE STATE</div>
+            </div>
+
+            <!-- Floating Data Widgets -->
+            <div class="absolute top-3 left-3 bg-orbDark/90 border border-orbCyan/40 p-2 text-[9px] font-space">
+              <div class="text-white/40">PREDICTIVE ROUTER</div>
+              <div class="text-orbCyan font-bold">NODE 01: GAZE 99.4%</div>
+            </div>
+            <div class="absolute bottom-3 right-3 bg-orbDark/90 border border-orbPurple/40 p-2 text-[9px] font-space">
+              <div class="text-white/40">SECURITY RING</div>
+              <div class="text-orbPurple font-bold">ZERO-COPY ACTIVE</div>
+            </div>
+          </div>
+
+          <!-- Bottom Telemetry Bar -->
+          <div class="grid grid-cols-2 gap-3 text-[10px] font-space pt-2 border-t border-white/10">
+            <div class="text-white/60">SECTOR CONFLICTS: <span class="text-orbGold">NONE DETECTED</span></div>
+            <div class="text-right text-white/60">MESH UPTIME: <span class="text-orbCyan">99.999%</span></div>
+          </div>
         </div>
-        <nav class="flex flex-col space-y-6 mt-8 font-space text-xs tracking-widest text-white/80">
-          <a href="#spatial" class="mobile-nav-link hover:text-orbCyan">SPATIAL MESH</a>
-          <a href="#contracts" class="mobile-nav-link hover:text-orbCyan">CONTRACTS</a>
-          <a href="#nodes" class="mobile-nav-link hover:text-orbCyan">COMPASS-ALPHA</a>
-          <a href="#security" class="mobile-nav-link hover:text-orbCyan">SOVEREIGNTY</a>
-          <a href="#engage" class="mobile-nav-link hover:text-orbCyan">TRANSMIT</a>
-        </nav>
       </div>
-      <div>
-        <a href="#engage" class="flex items-center justify-center gap-2 w-full py-3 bg-orbCyan text-charcoal font-space font-bold text-xs tracking-widest">
-          INITIALIZE ➔
-        </a>
-      </div>
+
     </div>
-
-    <!-- MAIN CONTENT AREA -->
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 my-auto py-12">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        <!-- Left Column: Main Typography & CTA (7 Cols) -->
-        <div class="lg:col-span-7">
-          <!-- Tagline Badge -->
-          <div class="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-none bg-orbCyan/10 border border-orbCyan/30 mb-6">
-            <span class="w-2 h-2 rounded-full bg-orbCyan animate-pulse"></span>
-            <span class="font-space text-[10px] tracking-[0.25em] text-orbCyan uppercase">SPATIAL MESH & REVERSIBLE ARCHITECTURE</span>
-          </div>
-
-          <!-- Main Stacked Title -->
-          <h1 class="font-syncopate font-bold text-3xl sm:text-5xl lg:text-[4.25rem] leading-[1.08] tracking-tight uppercase mb-8">
-            <span class="block text-white">AUTONOMOUS</span>
-            <span class="block text-slateMuted">NEURAL.</span>
-            <span class="block text-white">SPATIAL WEB</span>
-            <span class="block text-slateMuted">SOVEREIGN.</span>
-          </h1>
-
-          <!-- Subtitle -->
-          <p class="font-inter text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mb-10 font-normal">
-            Multi-layered spatial production mesh featuring 3-node predictive routing, Compass-Alpha directory, and zero-copy sovereign hardware licensing.
-          </p>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap items-center gap-5">
-            <a href="#spatial" class="group relative inline-flex items-center justify-center px-8 py-4 font-space text-xs tracking-[0.2em] uppercase border border-orbCyan text-orbCyan transition-all duration-300 overflow-hidden hover:text-charcoal">
-              <span class="relative z-10 flex items-center gap-2">
-                DEPLOY MESH <span>→</span>
-              </span>
-              <div class="absolute inset-0 bg-orbCyan transform -translate-x-full transition-transform duration-300 ease-out group-hover:translate-x-0"></div>
-            </a>
-
-            <button id="demo-btn" class="inline-flex items-center gap-3 px-6 py-4 font-space text-xs tracking-[0.2em] uppercase text-white/90 hover:text-white transition-colors group">
-              <span class="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center group-hover:border-orbCyan group-hover:text-orbCyan transition-colors">
-                <svg class="w-3 h-3 fill-current ml-0.5 text-white group-hover:text-orbCyan" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </span>
-              <span>SYSTEM SIMULATION</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Right Column: Telemetry HUD Card (5 Cols) -->
-        <div class="lg:col-span-5 flex justify-center lg:justify-end">
-          <div class="hud-bracket relative w-full max-w-sm p-6 bg-charcoal/80 backdrop-blur-md border border-orbCyan/20 shadow-[0_0_30px_rgba(0,229,255,0.08)]">
-            <div class="bracket-tr"></div>
-            <div class="bracket-bl"></div>
-
-            <!-- Header -->
-            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-orbCyan animate-pulse"></span>
-                <span class="font-space text-[10px] tracking-[0.2em] text-orbCyan uppercase font-bold">ORBWEBS KERNEL v9.2</span>
-              </div>
-              <span class="font-space text-[10px] tracking-widest text-white/40">SECURE</span>
-            </div>
-
-            <!-- Metrics -->
-            <div class="space-y-5">
-              <div>
-                <div class="flex justify-between font-space text-[11px] tracking-wider mb-2">
-                  <span class="text-white/60">ROUTING LATENCY</span>
-                  <span class="text-orbCyan font-bold">1.2ms (3-NODE)</span>
-                </div>
-                <div class="w-full h-1 bg-white/10 overflow-hidden">
-                  <div class="h-full bg-orbCyan w-[98%]"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex justify-between font-space text-[11px] tracking-wider mb-2">
-                  <span class="text-white/60">MESH SYNCHRONIZATION</span>
-                  <span class="text-white font-bold">100.0%</span>
-                </div>
-                <div class="w-full h-1 bg-white/10 overflow-hidden">
-                  <div class="h-full bg-white w-full"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-space text-[10px] tracking-widest">
-              <span class="text-white/40 uppercase">SECURITY RING: TIER-4</span>
-              <span class="text-orbCyan font-bold uppercase">ACTIVE</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </main>
-
-    <!-- 4. BOTTOM METRICS BAR -->
-    <footer class="relative z-20 w-full border-t border-white/10 bg-charcoal/60 backdrop-blur-sm">
-      <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-          <div class="flex items-center gap-4">
-            <div class="text-xl text-orbCyan">🌐</div>
-            <div>
-              <div class="font-syncopate font-bold text-2xl lg:text-3xl text-white flex items-baseline">
-                <span class="counter" data-target="3">0</span><span>-NODE</span>
-              </div>
-              <div class="font-space text-[10px] tracking-[0.2em] text-white/50 uppercase mt-1">PREDICTIVE ROUTING</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 md:border-l md:border-white/10 md:pl-8">
-            <div class="text-xl text-orbCyan">⚡</div>
-            <div>
-              <div class="font-syncopate font-bold text-2xl lg:text-3xl text-white flex items-baseline">
-                <span class="counter" data-target="100">0</span><span>%</span>
-              </div>
-              <div class="font-space text-[10px] tracking-[0.2em] text-white/50 uppercase mt-1">ZERO-COPY LICENSING</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 md:border-l md:border-white/10 md:pl-8">
-            <div class="text-xl text-orbCyan">🛡️</div>
-            <div>
-              <div class="font-syncopate font-bold text-2xl lg:text-3xl text-white flex items-baseline">
-                <span class="counter" data-target="24">0</span><span>/7</span>
-              </div>
-              <div class="font-space text-[10px] tracking-[0.2em] text-white/50 uppercase mt-1">SOVEREIGN SECURITY RING</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-
   </section>
 
-  <!-- INTERACTIVE SIMULATION MODAL -->
-  <div id="demo-modal" class="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-lg hidden items-center justify-center p-4 sm:p-8" role="dialog" aria-modal="true">
-    <div class="relative w-full max-w-4xl bg-black border border-orbCyan/30 shadow-2xl">
-      <button id="modal-close" aria-label="Close modal" class="absolute top-4 right-4 z-10 w-9 h-9 border border-orbCyan/40 text-orbCyan flex items-center justify-center hover:bg-orbCyan hover:text-charcoal transition-colors">
-        ✕
-      </button>
-      <div class="aspect-video w-full">
-        <video id="modal-video" controls playsinline class="w-full h-full object-cover" src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/abstract-video.mp4"></video>
+  <!-- ================= THE 4-TIER MULTI-LAYER CAPABILITIES ================= -->
+  <section id="layers" class="relative py-28 z-10 bg-orbDark/60 border-t border-orbCyan/20">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="text-center max-w-3xl mx-auto mb-20">
+        <div class="font-space text-xs text-orbCyan uppercase tracking-[0.3em] mb-3">SYSTEM ARCHITECTURE MATRIX</div>
+        <h2 class="font-syncopate text-3xl sm:text-5xl font-extrabold text-white">
+          THE 4-TIER <span class="text-orbCyan glow-cyan">POWER SPECTRUM</span>
+        </h2>
+        <p class="mt-4 text-white/60 font-jakarta text-sm sm:text-base">
+          From the physical layer of peripheral computing to the multi-agent smart contract coliseum. Explore the deep options designed for zero-compromise production.
+        </p>
       </div>
+
+      <!-- Layer Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- TIER 01 -->
+        <div class="glass-panel p-8 relative group transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <span class="font-space text-xs font-bold text-orbCyan tracking-widest px-3 py-1 bg-orbCyan/10 border border-orbCyan/30">
+              LAYER 01 // KERNEL FOUNDATION
+            </span>
+            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbCyan transition-colors">01</span>
+          </div>
+
+          <h3 class="font-outfit text-2xl font-bold text-white mb-3">3-Node Predictive Routing Engine</h3>
+          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
+            Eliminating screen friction. Gaze tracking, vocal phoneme decoding, and micro-keyboard shortcuts operate in a continuous triangular consensus loop to preempt user operations before execution.
+          </p>
+
+          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbCyan">▶ Sub-Option 1.1: Gaze Focus Lock</span>
+              <span class="text-white/40">0.03ms Latency</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbCyan">▶ Sub-Option 1.2: Vocal Phoneme Matrix</span>
+              <span class="text-white/40">Zero-Noise Engine</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbCyan">▶ Sub-Option 1.3: Reversible State Cache</span>
+              <span class="text-white/40">Infinite Instant Undo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIER 02 -->
+        <div class="glass-panel p-8 relative group transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <span class="font-space text-xs font-bold text-orbPurple tracking-widest px-3 py-1 bg-orbPurple/10 border border-orbPurple/30">
+              LAYER 02 // GLOBAL ARENA & DIRECTORY
+            </span>
+            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbPurple transition-colors">02</span>
+          </div>
+
+          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Compass-Alpha Radial Directory</h3>
+          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
+            A planetary real-time polar grid connecting operators, 3D studios, and avatars. Nodes are dynamically weighted by geographic ping proximity and verified NFT avatar popularity rankings.
+          </p>
+
+          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbPurple">▶ Sub-Option 2.1: Polar Geographic Clustering</span>
+              <span class="text-white/40">True Edge Peering</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbPurple">▶ Sub-Option 2.2: Avatar Popularity Weighting</span>
+              <span class="text-white/40">On-Chain Reputation</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbPurple">▶ Sub-Option 2.3: Cross-Coliseum Matchmaking</span>
+              <span class="text-white/40">Team & Guild Creation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIER 03 -->
+        <div class="glass-panel p-8 relative group transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <span class="font-space text-xs font-bold text-orbGold tracking-widest px-3 py-1 bg-orbGold/10 border border-orbGold/30">
+              LAYER 03 // HARDWARE & CIPHER RING
+            </span>
+            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbGold transition-colors">03</span>
+          </div>
+
+          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Sovereign Zero-Copy Hardware Ring</h3>
+          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
+            Direct memory-mapped cryptographic authentication for external accelerators and render nodes. Guarantees that zero intellectual property leaves the device unencrypted during production.
+          </p>
+
+          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbGold">▶ Sub-Option 3.1: Zero-Copy Hardware DMA</span>
+              <span class="text-white/40">Kernel-Level Memory Guard</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbGold">▶ Sub-Option 3.2: Tier-4 Darknet Crypt Barrier</span>
+              <span class="text-white/40">ZKP Identity Verification</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-orbGold">▶ Sub-Option 3.3: Accessory Hardware Licensing</span>
+              <span class="text-white/40">Hardware Key Pairing</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIER 04 -->
+        <div class="glass-panel p-8 relative group transition-all duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <span class="font-space text-xs font-bold text-white tracking-widest px-3 py-1 bg-white/10 border border-white/30">
+              LAYER 04 // AUTONOMOUS SETTLEMENT
+            </span>
+            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-white transition-colors">04</span>
+          </div>
+
+          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Autonomous Guild Micro-Contracts</h3>
+          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
+            Smart multi-agent agreements for 3D digital asset creation, fashion avatars, and engineering prints. Eliminates intermediaries with real-time on-chain escrow milestones.
+          </p>
+
+          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-white">▶ Sub-Option 4.1: Milestone Proof-of-Render</span>
+              <span class="text-white/40">Automated Escrow Release</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-white">▶ Sub-Option 4.2: Dynamic Royalty Splitter</span>
+              <span class="text-white/40">Multi-Node Distribution</span>
+            </div>
+            <div class="flex items-center justify-between text-white/80">
+              <span class="text-white">▶ Sub-Option 4.3: Legal-Social Sovereign Anchor</span>
+              <span class="text-white/40">Court-Admissible Signatures</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
-  </div>
+  </section>
 
-  <!-- SCRIPT CONTROLLERS -->
-  <script>
-    const mobileToggle = document.getElementById('mobile-toggle');
-    const mobileClose = document.getElementById('mobile-close');
-    const mobileDrawer = document.getElementById('mobile-drawer');
+  <!-- ================= FUTURE ARTICLE: WHITEPAPER & MANIFESTO ================= -->
+  <article id="manifesto" class="relative py-28 z-10 max-w-5xl mx-auto px-6">
+    <div class="glass-panel p-8 sm:p-14 border border-orbCyan/30 relative">
+      
+      <!-- Article Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8 text-xs font-space text-white/50">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-orbCyan"></span>
+          <span>RESEARCH WHITEPAPER // SECTOR 00-ALPHA</span>
+        </div>
+        <div>RELEASE DATE: 2026.09 // AUTHOR: ORBWEBS ARCHITECTURE COUNCIL</div>
+      </div>
 
-    function openNav() { mobileDrawer.classList.remove('translate-x-full'); }
-    function closeNav() { mobileDrawer.classList.add('translate-x-full'); }
+      <h2 class="font-syncopate text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-8">
+        THE DEATH OF FLAT COMPUTING & THE RISE OF THE SOVEREIGN SPATIAL COLISEUM
+      </h2>
 
-    mobileToggle.addEventListener('click', openNav);
-    mobileClose.addEventListener('click', closeNav);
-    document.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', closeNav));
+      <!-- Article Body -->
+      <div class="space-y-6 text-white/80 font-jakarta leading-relaxed text-base sm:text-lg">
+        
+        <p class="font-semibold text-orbCyan text-xl">
+          For three decades, computing was trapped inside two-dimensional rectangles. Operating systems treated users as passive consumers scrolling through centralized silos. ORBWEBS is the deliberate demolition of this paradigm.
+        </p>
 
-    const demoBtn = document.getElementById('demo-btn');
-    const demoModal = document.getElementById('demo-modal');
-    const modalClose = document.getElementById('modal-close');
-    const modalVideo = document.getElementById('modal-video');
+        <h3 class="font-outfit text-2xl font-bold text-white pt-4">I. The Collapse of the Centralized App Sandbox</h3>
+        <p>
+          Cloud-based subscription models and proprietary app stores turned the global developer base into digital sharecroppers. Your code is monitored, your assets are held hostage behind platform terms of service, and your compute hardware is deliberately throttled. ORBWEBS returns the compute layer directly to the network edge. Through zero-copy memory pipelines, our architecture enables hardware accelerators to execute complex 3D simulations and generative neural mesh renders locally, communicating only cryptographically verified state changes across the sovereign ring.
+        </p>
 
-    function openModal() { demoModal.classList.remove('hidden'); demoModal.classList.add('flex'); modalVideo.play(); }
-    function closeModal() { demoModal.classList.add('hidden'); demoModal.classList.remove('flex'); modalVideo.pause(); }
+        <h3 class="font-outfit text-2xl font-bold text-white pt-4">II. 3-Node Predictive Routing: The Post-Keyboard Era</h3>
+        <p>
+          Keyboards and mice were designed for typewriter logic. Spatial production requires synchronous cognitive alignment. By analyzing gaze fixation points down to fractions of a degree, decoding sub-vocal phonemes before full utterance, and pairing them with high-density physical micro-actuators, ORBWEBS predicts the operator’s next five actions. The interface does not react; it anticipates. You do not browse menus; the workspace manifests around your focal plane.
+        </p>
 
-    demoBtn.addEventListener('click', openModal);
-    modalClose.addEventListener('click', closeModal);
-    demoModal.addEventListener('click', (e) => { if (e.target === demoModal) closeModal(); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeNav(); } });
+        <h3 class="font-outfit text-2xl font-bold text-white pt-4">III. The Coliseum: Why Global Digital Production Is a Combat Sport</h3>
+        <p>
+          In the emerging spatial economy, digital fashion, avatars, automotive shells, and architectural blueprints are not merely files—they are high-value strategic territory. The Compass-Alpha Directory creates a global coliseum where designers, neural network trainers, and hardware owners assemble into autonomous syndicates. Those with superior latency, authenticated zero-copy hardware licenses, and unbreachable sovereign identities claim the largest transaction flows.
+        </p>
 
-    // Counters
-    document.querySelectorAll('.counter').forEach(counter => {
-      const target = +counter.getAttribute('data-target');
-      let count = 0;
-      const step = Math.max(1, target / 40);
-      const timer = setInterval(() => {
-        count += step;
-        if (count >= target) {
-          counter.innerText = target;
-          clearInterval(timer);
-        } else {
-          counter.innerText = Math.floor(count);
-        }
-      }, 30);
-    });
-  </script>
-</body>
-</html>
+        <div class="p-6 bg-orbCyan/5 border-l-4 border-orbCyan text-white/90 italic font-jakarta text-base my-6">
+          "We did not build ORBWEBS to fit into the web. We built it so that when the old web collapses under its own latency and surveillance rot, the architects of tomorrow already have an operating system to run the world."
+        </div>
+
+        <h3 class="font-outfit text-2xl font-bold text-white pt-4">IV. Conclusion: Sovereign Identity as Inviolable Armor</h3>
+        <p>
+          In the ORBWEBS ecosystem, an identity is not an email address rented from a search engine corporation. It is a Tier-4 cryptographic anchor verified by zero-knowledge proofs. Your reputation, your avatars, and your contracts are completely portable, immutable, and impervious to external cancellation. Welcome to the sovereign frontier.
+        </p>
+      </div>
+
+      <!-- Signoff Footer -->
+      <div class="mt-12 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 font-space text-xs">
+        <div class="text-orbCyan">STATUS: VERIFIED ON-CHAIN & RATIFIED</div>
+        <div class="text-white/40">KERNEL SIGNATURE: 0x89F4...77BC</div>
+      </div>
+
+    </div>
+  </article>
+
+  <!-- ================= ABOUT US // HIGH COUNCIL ================= -->
+  <section id="about" class="relative py-28 z-10 bg-void border-t border-orbCyan/20">
+    <div class="max-w-7xl mx-auto px-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left: Statement of Sovereignty -->
+        <div class="lg:col-span-6">
+          <div class="font-space text-xs text-orbPurple uppercase tracking-[0.3em] mb-3">WHO COMMANDS THE CORE</div>
+          <h2 class="font-syncopate text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+            ABOUT THE <span class="text-orbPurple glow-purple">ORBWEBS</span> SYNDICATE
+          </h2>
+
+          <p class="mt-6 text-white/70 font-jakarta leading-relaxed text-base">
+            We are not a conventional Silicon Valley startup seeking venture capital compliance. We are a sovereign coalition of digital network architects, hardware engineers, spatial UI designers, and cryptographic researchers dedicated to establishing an uncompromised global computing network.
+          </p>
+
+          <p class="mt-4 text-white/70 font-jakarta leading-relaxed text-base">
+            Our mission is singular: provide every operator on Earth with the tools, the speed, and the legal-social cryptographic armor required to build, trade, and dominate in the spatial era without permission from any central authority.
+          </p>
+
+          <!-- Core Values Badges -->
+          <div class="grid grid-cols-2 gap-4 mt-8 font-space text-xs">
+            <div class="border border-orbCyan/30 p-4 bg-orbCyan/5">
+              <div class="text-orbCyan font-bold">RADICAL PROVENANCE</div>
+              <div class="text-white/50 text-[11px] mt-1">Every byte signed, verifiable, and owned by the creator.</div>
+            </div>
+            <div class="border border-orbPurple/30 p-4 bg-orbPurple/5">
+              <div class="text-orbPurple font-bold">ZERO LATENCY DRIFT</div>
+              <div class="text-white/50 text-[11px] mt-1">Real-time edge computation for uncompromised reaction times.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Council Roster / Structural Manifest -->
+        <div class="lg:col-span-6 space-y-4">
+          
+          <!-- Pillar 1 -->
+          <div class="glass-panel p-6 border-l-4 border-l-orbCyan flex items-center justify-between">
+            <div>
+              <div class="font-syncopate text-sm font-bold text-white">DIGITAL NETWORK ARCHITECT</div>
+              <div class="font-space text-xs text-orbCyan mt-0.5">STUDENT // SUPREME ARCHITECTURAL COMMAND</div>
+              <div class="text-white/60 text-xs font-jakarta mt-2">Overseeing spatial telemetry, 3-node predictive integration, and core hardware topologies.</div>
+            </div>
+            <i data-lucide="shield-check" class="w-8 h-8 text-orbCyan shrink-0 ml-4"></i>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="glass-panel p-6 border-l-4 border-l-orbPurple flex items-center justify-between">
+            <div>
+              <div class="font-syncopate text-sm font-bold text-white">CRYPTOGRAPHIC RING DIVISION</div>
+              <div class="font-space text-xs text-orbPurple mt-0.5">SOVEREIGN SECURITY & ZKP ENCLAVE</div>
+              <div class="text-white/60 text-xs font-jakarta mt-2">Zero-copy DMA hardware validation and legal-social credential bridges.</div>
+            </div>
+            <i data-lucide="key-round" class="w-8 h-8 text-orbPurple shrink-0 ml-4"></i>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="glass-panel p-6 border-l-4 border-l-orbGold flex items-center justify-between">
+            <div>
+              <div class="font-syncopate text-sm font-bold text-white">SPATIAL PRODUCTION SYNDICATE</div>
+              <div class="font-space text-xs text-orbGold mt-0.5">COMPASS-ALPHA DIRECTORY GUILD</div>
+              <div class="text-white/60 text-xs font-jakarta mt-2">Directing global avatar weighting, NFT digital fashion distribution, and micro-contracts.</div>
+            </div>
