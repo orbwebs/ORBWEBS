@@ -3,683 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBWEBS // NEURAL SYSTEM CORE</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <title>ORBWEBS // Autonomous Spatial Mesh</title>
     <style>
-        :root {
-            --bg-void: #030308;
-            --cyan-core: #00f3ff;
-            --violet-core: #7928ca;
-            --magenta-glow: #ff007a;
-            --amber-warn: #ffaa00;
-            --border-glass: rgba(0, 243, 255, 0.2);
-            --hud-bg: rgba(6, 9, 20, 0.75);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--bg-void);
-            font-family: 'JetBrains Mono', monospace;
-            color: #d1d5db;
-        }
-
-        #sphere-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            cursor: grab;
-        }
-
-        #sphere-canvas:active {
-            cursor: grabbing;
-        }
-
-        /* Scanline Overlay */
-        .scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
-            z-index: 2;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        /* HUD Frame */
-        .hud-overlay {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 24px;
-            pointer-events: none;
-        }
-
-        .interactive {
-            pointer-events: auto;
-        }
-
-        /* Top HUD Bar */
-        .hud-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid var(--border-glass);
-            padding-bottom: 16px;
-            backdrop-filter: blur(12px);
-            background: linear-gradient(180deg, rgba(0,243,255,0.05) 0%, transparent 100%);
-        }
-
-        .brand-title {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 24px;
-            letter-spacing: 4px;
-            color: #fff;
-            text-shadow: 0 0 15px var(--cyan-core);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .node-pulse {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--cyan-core);
-            box-shadow: 0 0 10px var(--cyan-core);
-            animation: pulse 1.8s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 20px var(--cyan-core); }
-        }
-
-        .telemetry-bar {
-            display: flex;
-            gap: 20px;
-            font-size: 11px;
-            letter-spacing: 1px;
-            color: var(--cyan-core);
-        }
-
-        .telemetry-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .telemetry-val {
-            color: #fff;
-            font-weight: 700;
-        }
-
-        /* Lateral Core Controls */
-        .hud-lateral {
-            position: absolute;
-            left: 24px;
-            top: 120px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 260px;
-        }
-
-        .layer-badge {
-            background: var(--hud-bg);
-            border-left: 2px solid var(--cyan-core);
-            padding: 8px 12px;
-            font-size: 10px;
-            backdrop-filter: blur(8px);
-            border-radius: 0 4px 4px 0;
-            transition: all 0.3s ease;
-        }
-
-        .layer-badge.active {
-            border-left-color: var(--magenta-glow);
-            background: rgba(121, 40, 202, 0.25);
-            box-shadow: 0 0 15px rgba(255, 0, 122, 0.3);
-        }
-
-        /* Bottom Command HUD */
-        .hud-footer {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            border-top: 1px solid var(--border-glass);
-            padding-top: 16px;
-            backdrop-filter: blur(12px);
-        }
-
-        .action-card {
-            background: var(--hud-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 6px;
-            padding: 14px;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .action-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--cyan-core), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .action-card:hover {
-            border-color: var(--cyan-core);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.15);
-        }
-
-        .action-card:hover::before {
-            opacity: 1;
-        }
-
-        .card-tag {
-            font-size: 9px;
-            color: var(--cyan-core);
-            letter-spacing: 1.5px;
-            margin-bottom: 4px;
-        }
-
-        .card-name {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 13px;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-        .card-desc {
-            font-size: 10px;
-            color: #9ca3af;
-            line-height: 1.4;
-        }
-
-
-        .control-panel {
-            position: absolute;
-            right: 24px;
-            top: 120px;
-            width: min(360px, calc(100vw - 48px));
-            padding: 14px;
-            border: 1px solid var(--border-glass);
-            border-radius: 6px;
-            background: rgba(6, 9, 20, 0.78);
-            backdrop-filter: blur(14px);
-            box-shadow: 0 10px 40px rgba(0,0,0,.25);
-        }
-        .panel-head {
-            display:flex;
-            justify-content:space-between;
-            gap:16px;
-            font-size:10px;
-            letter-spacing:1.2px;
-            color:#fff;
-            margin-bottom:12px;
-        }
-        .panel-kicker { color:var(--cyan-core); }
-        .panel-grid {
-            display:grid;
-            grid-template-columns:repeat(3,1fr);
-            gap:8px;
-        }
-        .panel-grid div {
-            border:1px solid rgba(255,255,255,.07);
-            padding:9px;
-            min-width:0;
-        }
-        .panel-grid span {
-            display:block;
-            font-size:8px;
-            color:#7d8797;
-            margin-bottom:4px;
-        }
-        .panel-grid strong {
-            display:block;
-            color:#fff;
-            font-size:10px;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-        .progress-track {
-            height:2px;
-            margin-top:12px;
-            background:rgba(255,255,255,.08);
-            overflow:hidden;
-        }
-        .progress-track i {
-            display:block;
-            width:18%;
-            height:100%;
-            background:var(--cyan-core);
-            box-shadow:0 0 12px var(--cyan-core);
-            transition:width .45s ease;
-        }
-        .action-card:focus-visible {
-            outline:1px solid var(--cyan-core);
-            outline-offset:3px;
-        }
-        @media (max-width: 840px) {
-            .control-panel {
-                top:auto;
-                bottom:155px;
-                right:16px;
-                width:calc(100vw - 32px);
-            }
-        }
-        @media (max-width: 560px) {
-            .hud-overlay { padding:16px; }
-            .hud-header { flex-direction:column; gap:12px; }
-            .telemetry-bar { gap:10px; flex-wrap:wrap; }
-            .telemetry-item { align-items:flex-start; }
-            .control-panel { bottom:220px; }
-            .panel-grid { grid-template-columns:1fr 1fr 1fr; }
-            .hud-footer { gap:8px; }
-            .action-card { padding:10px; }
-            .card-desc { font-size:9px; }
-        }
-
-        /* Responsive */
-        @media (max-width: 840px) {
-            .hud-footer {
-                grid-template-columns: 1fr;
-            }
-            .hud-lateral {
-                display: none;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00f0ff; }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
+        /* HUD Overlay */
+        .hud-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; display: grid; grid-template-rows: 80px 1fr 60px; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; pointer-events: auto; border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 10px; }
+        .logo { font-size: 24px; font-weight: bold; letter-spacing: 4px; background: linear-gradient(90deg, #9d4edd, #00f0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .status-badge { font-size: 11px; border: 1px solid #00f0ff; padding: 4px 12px; border-radius: 20px; background: rgba(0,240,255,0.05); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
+        
+        /* Central Core Panel */
+        .core-hub { display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .holo-card { pointer-events: auto; background: rgba(5, 5, 15, 0.75); border: 1px solid rgba(0, 240, 255, 0.4); padding: 30px; border-radius: 12px; backdrop-filter: blur(12px); box-shadow: 0 0 30px rgba(157, 78, 221, 0.2); max-width: 450px; text-align: center; }
+        .holo-card h2 { font-size: 18px; margin-bottom: 15px; letter-spacing: 2px; color: #fff; }
+        .holo-card p { font-size: 13px; color: #8ab4f8; margin-bottom: 20px; line-height: 1.6; }
+        .btn-matrix { background: transparent; border: 1px solid #00f0ff; color: #00f0ff; padding: 10px 24px; font-family: inherit; font-size: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; border-radius: 4px; }
+        .btn-matrix:hover { background: #00f0ff; color: #000; box-shadow: 0 0 20px #00f0ff; }
+        
+        /* Footer Telemetry */
+        footer { display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: 0.7; }
     </style>
 </head>
 <body>
-    <div class="scanlines"></div>
-    <canvas id="sphere-canvas" aria-label="Interactive neural system visualization"></canvas>
+
+    <div id="canvas-container"></div>
 
     <div class="hud-overlay">
-        <!-- Top Nav Header -->
-        <header class="hud-header interactive">
-            <div class="brand-title">
-                <span class="node-pulse"></span>
-                ORBWEBS
-            </div>
-            <div class="telemetry-bar">
-                <div class="telemetry-item">
-                    <span>GEOMETRY ARCHITECTURE</span>
-                    <span class="telemetry-val">10-LAYER TETRA-NEURAL</span>
-                </div>
-                <div class="telemetry-item">
-                    <span>GROWTH FACTOR</span>
-                    <span class="telemetry-val">r=3 (BASE-4)</span>
-                </div>
-                <div class="telemetry-item">
-                    <span>TOTAL MESH NODES</span>
-                    <span class="telemetry-val" id="node-count">118,096</span>
-                </div>
-                <div class="telemetry-item">
-                    <span>DOMAIN STATUS</span>
-                    <span class="telemetry-val" style="color: var(--cyan-core);">ONLINE // SECURE</span>
-                </div>
-            </div>
+        <header>
+            <div class="logo">Orbwebs</div>
+            <div class="status-badge">SYSTEM: ACTIVE // MESH 10-LAYER</div>
         </header>
 
-        <!-- Left Lateral Layer Status -->
-        <div class="hud-lateral">
-            <div class="layer-badge active">
-                <strong>L1: GENESIS CORE</strong><br>4 NODES [TETRAHEDRON SEED]
-            </div>
-            <div class="layer-badge">
-                <strong>L2: AUTONOMOUS CONTRACTS</strong><br>12 NODES [ZERO-COPY PROTOCOL]
-            </div>
-            <div class="layer-badge">
-                <strong>L3: NEURAL PREDICTIVE</strong><br>36 NODES [GAZE/VOICE/ROUTING]
-            </div>
-            <div class="layer-badge">
-                <strong>L4-L10: EXPANDED SPHERES</strong><br>118,044 DISTRIBUTED RELAYS
+        <div class="core-hub">
+            <div class="holo-card">
+                <h2>SPATIAL NEURAL CORE</h2>
+                <p>Autonomous AI-native sovereign infrastructure. Zero-copy hardware licensing & decentralized multi-layered spatial production mesh.</p>
+                <button class="btn-matrix" onclick="activateCore()">Initialize Protocol</button>
             </div>
         </div>
 
-        <section class="control-panel interactive" aria-live="polite">
-            <div class="panel-head">
-                <span class="panel-kicker">ACTIVE AXIS</span>
-                <span id="active-axis">RUNTIME / ACTION</span>
-            </div>
-            <div class="panel-grid">
-                <div><span>STATE</span><strong id="system-state">READY</strong></div>
-                <div><span>REQUEST</span><strong id="request-state">IDLE</strong></div>
-                <div><span>SYNC</span><strong id="sync-state">LOCAL</strong></div>
-            </div>
-            <div class="progress-track"><i id="progress-bar"></i></div>
-        </section>
-
-        <!-- Bottom Actions -->
-        <footer class="hud-footer interactive" aria-label="System control axes">
-            <div class="action-card" data-action="runtime" onclick="triggerNode(1)" tabindex="0" role="button">
-                <div class="card-tag">AXIS // 01</div>
-                <div class="card-name">RUNTIME / ACTION</div>
-                <div class="card-desc">Real commands, system state, loading/error/success feedback and executable user flows.</div>
-            </div>
-            <div class="action-card" data-action="api" onclick="triggerNode(2)" tabindex="0" role="button">
-                <div class="card-tag">AXIS // 02</div>
-                <div class="card-name">FRONT ↔ BACK</div>
-                <div class="card-desc">API contracts, authentication, data synchronization, telemetry and backend-ready state management.</div>
-            </div>
-            <div class="action-card" data-action="ux" onclick="triggerNode(3)" tabindex="0" role="button">
-                <div class="card-tag">AXIS // 03</div>
-                <div class="card-name">UI / UX SYSTEM</div>
-                <div class="card-desc">Information hierarchy, responsive interaction, accessibility and clear feedback at every step.</div>
-            </div>
+        <footer>
+            <div>LAT: 35.6892° N, LON: 51.3890° E</div>
+            <div>SECURE RING: TIER-1 ACTIVE</div>
         </footer>
     </div>
 
+    <!-- Three.js for 3D Globe & Spatial Mesh Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const canvas = document.getElementById('sphere-canvas');
-        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
 
-        let width, height;
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        // Create Globe & Spiderweb Sphere
+        const sphereGeometry = new THREE.SphereGeometry(3, 32, 32);
+        const sphereMaterial = new THREE.MeshBasicMaterial({
+            color: 0x050b1a,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25
+        });
+        const globe = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        scene.add(globe);
 
-        // Mathematical Constants & Configuration
-        const LAYERS_COUNT = 10;
-        const BASE_TETRA_NODES = 4;
-        let rotX = 0.2;
-        let rotY = 0.3;
-        let targetRotX = 0.2;
-        let targetRotY = 0.3;
-        let isDragging = false;
-        let lastMouseX = 0;
-        let lastMouseY = 0;
+        // Create Neural Node Particles
+        const particlesCount = 1500;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesPositions = new Float32Array(particlesCount * 3);
 
-        // Spherical Layer Colors
-        const LAYER_COLORS = [
-            '#00f3ff', // L1 Core: Pure Cyan
-            '#38bdf8', // L2
-            '#60a5fa', // L3
-            '#818cf8', // L4
-            '#a855f7', // L5
-            '#c084fc', // L6
-            '#e879f9', // L7
-            '#ff007a', // L8
-            '#f43f5e', // L9
-            '#ec4899'  // L10 Nebula Shell
-        ];
-
-        // Node Definition
-        class Node3D {
-            constructor(x, y, z, layer, label = null) {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                this.layer = layer;
-                this.label = label;
-                this.color = LAYER_COLORS[layer];
-            }
+        for(let i = 0; i < particlesCount * 3; i++) {
+            particlesPositions[i] = (Math.random() - 0.5) * 12;
         }
 
-        const nodes = [];
-        const coreEdges = [];
-
-        // Generate L1 Tetrahedron (Haram / 4 Core Vertices)
-        const coreRadius = 140;
-        const tVerts = [
-            [0, -coreRadius, 0],
-            [Math.sqrt(8/9) * coreRadius, coreRadius/3, 0],
-            [-Math.sqrt(2/9) * coreRadius, coreRadius/3, Math.sqrt(2/3) * coreRadius],
-            [-Math.sqrt(2/9) * coreRadius, coreRadius/3, -Math.sqrt(2/3) * coreRadius]
-        ];
-
-        const coreLabels = ["ORB-ROOT", "MODELING", "COMPASS", "NETWORK"];
-
-        tVerts.forEach((v, idx) => {
-            nodes.push(new Node3D(v[0], v[1], v[2], 0, coreLabels[idx]));
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.04,
+            color: 0x00f0ff,
+            transparent: true,
+            opacity: 0.8
         });
+        const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particleSystem);
 
-        // Core Edges (Connect all 4 vertices with each other)
-        for(let i = 0; i < 4; i++) {
-            for(let j = i + 1; j < 4; j++) {
-                coreEdges.push([i, j]);
-            }
+        camera.position.z = 7;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            globe.rotation.y += 0.001;
+            particleSystem.rotation.y -= 0.0005;
+            renderer.render(scene, camera);
         }
+        animate();
 
-        // Generate 10-Layer Geometric Rings (Progression with r=3)
-        // High-density procedural projection points
-        for (let l = 1; l < LAYERS_COUNT; l++) {
-            const layerRadius = coreRadius + (l * 42);
-            // Representative visual sample per layer to preserve 60FPS fluid WebGL/Canvas rendering
-            const sampleCount = Math.min(12 * Math.pow(1.8, l), 360); 
-            
-            for (let i = 0; i < sampleCount; i++) {
-                const theta = Math.acos(1 - 2 * (i + 0.5) / sampleCount);
-                const phi = Math.PI * (1 + Math.sqrt(5)) * i;
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
 
-                const x = layerRadius * Math.sin(theta) * Math.cos(phi);
-                const y = layerRadius * Math.sin(theta) * Math.sin(phi);
-                const z = layerRadius * Math.cos(theta);
-
-                nodes.push(new Node3D(x, y, z, l));
-            }
+        function activateCore() {
+            alert("ORBWEBS Sovereign Protocol Synchronized.");
         }
-
-        // Mouse & Touch Orbit Controls
-        window.addEventListener('mousedown', e => {
-            isDragging = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-        });
-
-        window.addEventListener('mousemove', e => {
-            if (isDragging) {
-                const dx = e.clientX - lastMouseX;
-                const dy = e.clientY - lastMouseY;
-                targetRotY += dx * 0.005;
-                targetRotX += dy * 0.005;
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-            }
-        });
-
-        window.addEventListener('mouseup', () => isDragging = false);
-
-        window.addEventListener('touchstart', e => {
-            if(e.touches.length === 1) {
-                isDragging = true;
-                lastMouseX = e.touches[0].clientX;
-                lastMouseY = e.touches[0].clientY;
-            }
-        });
-
-        window.addEventListener('touchmove', e => {
-            if(isDragging && e.touches.length === 1) {
-                const dx = e.touches[0].clientX - lastMouseX;
-                const dy = e.touches[0].clientY - lastMouseY;
-                targetRotY += dx * 0.005;
-                targetRotX += dy * 0.005;
-                lastMouseX = e.touches[0].clientX;
-                lastMouseY = e.touches[0].clientY;
-            }
-        });
-
-        window.addEventListener('touchend', () => isDragging = false);
-
-        // System state / Frontend interaction layer
-        const AXES = {
-            1: { name: 'RUNTIME / ACTION', state: 'EXECUTING', request: 'COMMAND', sync: 'LOCAL', progress: 78 },
-            2: { name: 'FRONT ↔ BACK', state: 'CONNECTED', request: 'API /SYNC', sync: 'LIVE', progress: 92 },
-            3: { name: 'UI / UX SYSTEM', state: 'INTERACTIVE', request: 'USER FLOW', sync: 'LOCAL', progress: 66 }
-        };
-
-        const activeAxis = document.getElementById('active-axis');
-        const systemState = document.getElementById('system-state');
-        const requestState = document.getElementById('request-state');
-        const syncState = document.getElementById('sync-state');
-        const progressBar = document.getElementById('progress-bar');
-
-        function triggerNode(id) {
-            const axis = AXES[id];
-            if (!axis) return;
-
-            targetRotY += id * 1.2;
-            targetRotX = 0.2;
-
-            activeAxis.textContent = axis.name;
-            systemState.textContent = axis.state;
-            requestState.textContent = axis.request;
-            syncState.textContent = axis.sync;
-            progressBar.style.width = axis.progress + '%';
-
-            document.querySelectorAll('.action-card').forEach(card => card.classList.remove('active'));
-            const activeCard = document.querySelector(`.action-card[data-action="${id === 1 ? 'runtime' : id === 2 ? 'api' : 'ux'}"]`);
-            if (activeCard) activeCard.classList.add('active');
-        }
-
-        document.querySelectorAll('.action-card').forEach((card, index) => {
-            card.addEventListener('keydown', event => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    triggerNode(index + 1);
-                }
-            });
-        });
-
-        // Simulated backend heartbeat: replace this interval with fetch/WebSocket/SSE in production.
-        let heartbeat = 0;
-        setInterval(() => {
-            heartbeat++;
-            document.getElementById('node-count').textContent =
-                (118096 + (heartbeat % 17)).toLocaleString();
-            document.querySelector('.telemetry-val[style*="cyan"]')
-                ?.replaceChildren(document.createTextNode('ONLINE // SYNCED'));
-        }, 3000);
-
-        // Projection & Render Loop
-        const fov = 480;
-        function render() {
-            ctx.fillStyle = '#030308';
-            ctx.fillRect(0, 0, width, height);
-
-            // Smooth Interpolation
-            rotX += (targetRotX - rotX) * 0.06;
-            rotY += (targetRotY - rotY) * 0.06;
-
-            // Auto subtle rotation
-            if (!isDragging) {
-                targetRotY += 0.0015;
-            }
-
-            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-            const cx = width / 2;
-            const cy = height / 2;
-
-            // Coordinate Projection
-            const projected = [];
-            for (let i = 0; i < nodes.length; i++) {
-                const n = nodes[i];
-
-                // Y-Axis Rotation
-                let x1 = n.x * cosY - n.z * sinY;
-                let z1 = n.z * cosY + n.x * sinY;
-
-                // X-Axis Rotation
-                let y1 = n.y * cosX - z1 * sinX;
-                let z2 = z1 * cosX + n.y * sinX;
-
-                const distance = 800;
-                const scale = fov / (distance + z2);
-                const px = cx + x1 * scale;
-                const py = cy + y1 * scale;
-
-                projected.push({ px, py, scale, z: z2, node: n });
-            }
-
-            // Draw Core Pyramid Edges (Layer 1 Tetrahedron)
-            ctx.lineWidth = 1.5;
-            for (let e = 0; e < coreEdges.length; e++) {
-                const p1 = projected[coreEdges[e][0]];
-                const p2 = projected[coreEdges[e][1]];
-
-                const grad = ctx.createLinearGradient(p1.px, p1.py, p2.px, p2.py);
-                grad.addColorStop(0, 'rgba(0, 243, 255, 0.8)');
-                grad.addColorStop(1, 'rgba(121, 40, 202, 0.8)');
-
-                ctx.strokeStyle = grad;
-                ctx.beginPath();
-                ctx.moveTo(p1.px, p1.py);
-                ctx.lineTo(p2.px, p2.py);
-                ctx.stroke();
-            }
-
-            // Render Nodes sorted by depth (Back-to-Front)
-            projected.sort((a, b) => b.z - a.z);
-
-            for (let i = 0; i < projected.length; i++) {
-                const p = projected[i];
-                if (p.scale < 0) continue;
-
-                const n = p.node;
-                const radius = (n.layer === 0 ? 5.5 : 1.6) * p.scale;
-                const alpha = Math.max(0.15, Math.min(1, (p.z + 400) / 800));
-
-                ctx.save();
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = n.color;
-
-                ctx.beginPath();
-                ctx.arc(p.px, p.py, radius, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Special treatment for Genesis Core (Tetrahedron vertices)
-                if (n.layer === 0) {
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-
-                    // Node Label
-                    ctx.font = '10px "Syncopate", sans-serif';
-                    ctx.fillStyle = '#00f3ff';
-                    ctx.shadowColor = '#00f3ff';
-                    ctx.shadowBlur = 8;
-                    ctx.fillText(n.label, p.px + 10, p.py + 4);
-                }
-                ctx.restore();
-            }
-
-            requestAnimationFrame(render);
-        }
-
-        render();
     </script>
 </body>
 </html>
