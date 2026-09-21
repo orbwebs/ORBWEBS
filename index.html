@@ -3,134 +3,402 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ORBWEBS — Neural Workspace</title>
+<title>ORBWEBS — Spatial Neural OS</title>
 <style>
 :root{
-  --bg:#06070b; --panel:#0c0f16; --panel2:#111621; --line:#1c2533;
-  --text:#edf4ff; --muted:#8290a5; --cyan:#00e5ff; --violet:#8b5cf6;
-  --green:#45e6a5; --amber:#ffbd66; --danger:#ff5f7a; --radius:18px;
+  --bg:#030508; --panel:rgba(10,14,22,0.75); --panel2:rgba(17,24,38,0.85); --line:rgba(0,229,255,0.18);
+  --text:#edf4ff; --muted:#7e90a8; --cyan:#00e5ff; --violet:#9d4edd;
+  --green:#00ffa3; --amber:#ffbd66; --danger:#ff3366; --radius:16px;
 }
-*{box-sizing:border-box} body{margin:0;background:
-radial-gradient(circle at 72% 8%,rgba(0,229,255,.09),transparent 28%),
-radial-gradient(circle at 20% 70%,rgba(139,92,246,.07),transparent 30%),var(--bg);
-color:var(--text);font:14px Inter,ui-sans-serif,system-ui,sans-serif;min-height:100vh}
-button,input{font:inherit}.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
-aside{border-right:1px solid var(--line);background:rgba(7,9,14,.88);padding:20px 14px;position:sticky;top:0;height:100vh}
-.logo{font-weight:800;letter-spacing:.28em;font-size:18px;padding:8px 12px 26px}
-.logo i{display:inline-block;width:9px;height:9px;border:2px solid var(--cyan);border-radius:50%;box-shadow:0 0 14px var(--cyan);margin-right:9px}
-.section{margin:18px 8px 8px;color:#536174;font-size:10px;letter-spacing:.16em}
-.nav button{width:100%;border:0;background:none;color:#aab6c8;text-align:left;padding:11px 12px;border-radius:10px;cursor:pointer}
-.nav button:hover,.nav button.active{background:#111824;color:#fff}.nav button.active{box-shadow:inset 2px 0 var(--cyan)}
-.workspace{padding:18px 24px 40px;max-width:1500px;width:100%;margin:auto}
-.topbar{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:15px}
-.search{flex:1;background:#0b0f16;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:#fff;outline:none}
-.search:focus{border-color:#31566a;box-shadow:0 0 0 3px rgba(0,229,255,.06)}
-.iconbtn,.primary{border:1px solid var(--line);background:#0d121b;color:#dce7f5;border-radius:11px;padding:10px 13px;cursor:pointer}
-.primary{background:linear-gradient(135deg,#00aeca,#7253dc);border:0;color:#fff;font-weight:700}
-.profile{display:flex;align-items:center;gap:10px;padding-left:8px}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1d5260,#7a4bc8);display:grid;place-items:center;font-weight:800}
-.breadcrumb{color:#617086;font-size:11px;margin:22px 0 10px}.breadcrumb b{color:#b9c7d9}
-.hero{display:grid;grid-template-columns:1fr 330px;gap:18px;margin-bottom:18px}
-.card{background:linear-gradient(145deg,rgba(17,22,33,.96),rgba(9,12,18,.96));border:1px solid var(--line);border-radius:var(--radius);padding:20px}
-.hero-main{min-height:210px;position:relative;overflow:hidden}.hero-main:after{content:"";position:absolute;width:280px;height:280px;right:-70px;top:-80px;border:1px solid rgba(0,229,255,.18);border-radius:50%;box-shadow:0 0 90px rgba(0,229,255,.08)}
-.kicker{color:var(--cyan);font-size:10px;letter-spacing:.18em}.hero h1{font-size:38px;margin:10px 0 7px;letter-spacing:-.03em}.hero p{color:var(--muted);max-width:650px;line-height:1.6}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}.chip{border:1px solid #243044;border-radius:999px;padding:6px 9px;color:#aab8ca;font-size:11px}
-.profile-card{display:flex;flex-direction:column;justify-content:space-between}.profile-head{display:flex;gap:12px;align-items:center}.bigavatar{width:64px;height:64px;border-radius:17px;background:linear-gradient(135deg,#142c38,#8054ce);display:grid;place-items:center;font-size:20px;font-weight:800}.verified{color:var(--green);font-size:11px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:#0a0e15;border:1px solid #192231;padding:10px;border-radius:10px}.stat b{display:block;font-size:17px}.stat span{font-size:9px;color:#68768a}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:10px 0 18px;overflow:auto}.tab{background:none;border:0;color:#718096;padding:12px 15px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}.tab.active{color:#fff;border-color:var(--cyan)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.tile h3{margin:0 0 8px}.tile p{color:var(--muted);line-height:1.5;font-size:12px}.tile .meta{display:flex;justify-content:space-between;color:#68768a;font-size:10px;margin-top:15px}.status{display:inline-flex;align-items:center;gap:5px}.dot{width:6px;height:6px;background:var(--green);border-radius:50%}
-.panel{display:none}.panel.active{display:block}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.list{display:grid;gap:8px}.item{padding:13px;background:#0a0e15;border:1px solid #192231;border-radius:12px}.item small{color:#66758a}.meter{height:5px;background:#18202c;border-radius:9px;overflow:hidden;margin-top:10px}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet))}
-.field{display:grid;gap:7px;margin-bottom:14px}.field label{font-size:10px;color:#748399;letter-spacing:.08em}.field input,.field textarea,.field select{background:#080c12;border:1px solid #202b3b;border-radius:10px;padding:11px;color:#fff;outline:none}.field textarea{min-height:100px;resize:vertical}
-.toast{position:fixed;right:20px;bottom:20px;background:#101722;border:1px solid #2a394d;padding:12px 15px;border-radius:12px;display:none;box-shadow:0 12px 40px #0008}
-@media(max-width:1050px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:760px){.app{grid-template-columns:1fr}aside{position:fixed;z-index:10;left:0;bottom:0;top:auto;width:100%;height:auto;padding:7px;border-right:0;border-top:1px solid var(--line)}.logo,.section{display:none}.nav{display:grid;grid-template-columns:repeat(5,1fr)}.nav button{font-size:9px;text-align:center;padding:9px 2px}.workspace{padding:14px 14px 82px}.topbar{position:sticky;top:0;background:#06070bf2;z-index:5}.profile .name{display:none}.hero h1{font-size:30px}.grid{grid-template-columns:1fr}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:13px 'SF Pro Display',Inter,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font:inherit}
+
+/* Canvas Background */
+#neural-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+
+/* Layout */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;position:relative;z-index:1}
+aside{border-right:1px solid var(--line);background:rgba(4,7,12,0.85);backdrop-filter:blur(20px);padding:24px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:space-between}
+
+/* Cyber Spider Brand */
+.brand{display:flex;align-items:center;gap:12px;padding:6px 12px 28px;text-decoration:none}
+.brand-orb{width:36px;height:36px;position:relative;display:grid;place-items:center}
+.brand-orb svg{width:100%;height:100%;filter:drop-shadow(0 0 10px var(--cyan))}
+.brand-name{font-size:18px;font-weight:900;letter-spacing:0.25em;background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.section-label{color:#48566a;font-size:9px;font-weight:700;letter-spacing:0.2em;margin:18px 10px 8px}
+.nav button{width:100%;border:0;background:none;color:#94a3b8;text-align:left;padding:10px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:500;transition:all 0.2s}
+.nav button:hover{background:rgba(0,229,255,0.06);color:#fff}
+.nav button.active{background:linear-gradient(90deg,rgba(0,229,255,0.12),transparent);color:var(--cyan);border-left:3px solid var(--cyan);box-shadow:inset 10px 0 20px -10px rgba(0,229,255,0.2)}
+
+.system-status{background:rgba(0,0,0,0.5);border:1px solid var(--line);padding:12px;border-radius:12px;font-size:11px}
+.status-pill{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Workspace Main */
+.workspace{padding:24px 32px 60px;max-width:1440px;width:100%;margin:0 auto}
+.topbar{display:flex;align-items:center;gap:14px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.search-wrapper{flex:1;position:relative}
+.search{width:100%;background:rgba(10,15,24,0.7);border:1px solid var(--line);border-radius:12px;padding:12px 18px 12px 42px;color:#fff;outline:none;transition:0.3s}
+.search:focus{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,229,255,0.2)}
+.search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#52627a}
+
+.iconbtn,.primary{border:1px solid var(--line);background:rgba(13,20,31,0.8);color:#dce7f5;border-radius:10px;padding:10px 14px;cursor:pointer;transition:0.2s}
+.iconbtn:hover{border-color:var(--cyan);color:#fff}
+.primary{background:linear-gradient(135deg,var(--cyan),var(--violet));border:0;color:#000;font-weight:700}
+.primary:hover{box-shadow:0 0 25px rgba(0,229,255,0.4);transform:translateY(-1px)}
+
+.voice-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.05em}
+
+.profile{display:flex;align-items:center;gap:12px;padding-left:12px}
+.avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#005b66,#7a22cc);display:grid;place-items:center;font-weight:800;border:1px solid rgba(0,229,255,0.4)}
+
+.breadcrumb{color:#55657b;font-size:11px;margin:22px 0 14px;letter-spacing:0.08em}
+.breadcrumb b{color:var(--cyan)}
+
+/* Cards & Components */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.hero{display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:20px}
+.hero-main{position:relative;overflow:hidden}
+.hero-main h1{font-size:36px;font-weight:900;letter-spacing:-0.03em;margin:12px 0 8px;background:linear-gradient(135deg,#fff,#90b4ce);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kicker{color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:0.2em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{border:1px solid rgba(0,229,255,0.25);background:rgba(0,229,255,0.04);border-radius:20px;padding:6px 12px;color:#a5c0db;font-size:11px}
+
+/* Compass-Alpha Radial Graph */
+.compass-container{margin-top:20px;display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:center}
+.radial-dial{width:240px;height:240px;border-radius:50%;border:1px dashed var(--cyan);position:relative;margin:auto;display:grid;place-items:center;box-shadow:0 0 30px rgba(0,229,255,0.08)}
+.dial-axis{position:absolute;width:100%;height:1px;background:rgba(0,229,255,0.15)}
+.dial-axis.vertical{transform:rotate(90deg)}
+.node-avatar{width:32px;height:32px;border-radius:50%;position:absolute;border:2px solid var(--cyan);background:#0f172a;display:grid;place-items:center;font-size:10px;cursor:pointer;transition:transform 0.2s}
+.node-avatar:hover{transform:scale(1.3);box-shadow:0 0 15px var(--cyan)}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.meter{height:4px;background:#131c28;border-radius:10px;overflow:hidden;margin-top:12px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet))}
+
+.field{display:grid;gap:8px;margin-bottom:16px}
+.field label{font-size:10px;color:#6f829c;letter-spacing:0.1em}
+.field input,.field textarea,.field select{background:rgba(8,12,18,0.8);border:1px solid var(--line);border-radius:10px;padding:12px;color:#fff;outline:none}
+.field input:focus{border-color:var(--cyan)}
+
+.toast{position:fixed;right:24px;bottom:24px;background:rgba(12,18,28,0.95);border:1px solid var(--cyan);padding:14px 20px;border-radius:12px;display:none;box-shadow:0 10px 40px rgba(0,229,255,0.25);z-index:99;font-weight:600}
 </style>
 </head>
 <body>
+
+<canvas id="neural-canvas"></canvas>
+
 <div class="app">
 <aside>
-  <div class="logo"><i></i>ORBWEBS</div>
-  <div class="section">WORKSPACE</div>
-  <nav class="nav">
-    <button class="active" data-panel="overview">⌂ Overview</button>
-    <button data-panel="projects">◈ Projects</button>
-    <button data-panel="network">◎ Network</button>
-    <button data-panel="activity">◌ Activity</button>
-    <button data-panel="settings">⚙ Settings</button>
-  </nav>
-  <div class="section">SYSTEM</div>
-  <nav class="nav">
-    <button data-panel="profile">◉ Profile</button>
-    <button data-panel="security">◇ Security</button>
-    <button data-panel="billing">▣ Billing</button>
-  </nav>
+  <div>
+    <div class="brand">
+      <div class="brand-orb">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#00e5ff" stroke-width="4">
+          <circle cx="50" cy="50" r="42" stroke-dasharray="4 2"/>
+          <line x1="50" y1="8" x2="50" y2="92"/>
+          <line x1="8" y1="50" x2="92" y2="50"/>
+          <polygon points="50,20 80,50 50,80 20,50"/>
+          <circle cx="50" cy="50" r="6" fill="#00e5ff"/>
+        </svg>
+      </div>
+      <div class="brand-name">ORBWEBS</div>
+    </div>
+
+    <div class="section-label">NEURAL WORKSPACE</div>
+    <nav class="nav">
+      <button class="active" data-panel="overview">⌂ Overview</button>
+      <button data-panel="mesh">◈ Spatial Mesh</button>
+      <button data-panel="compass">◎ Compass Alpha</button>
+      <button data-panel="hardware">⬡ Hardware Zero-Copy</button>
+      <button data-panel="projects">▤ Projects</button>
+    </nav>
+
+    <div class="section-label">SOVEREIGN CORE</div>
+    <nav class="nav">
+      <button data-panel="profile">◉ Profile / ID</button>
+      <button data-panel="security">◇ Security Ring</button>
+      <button data-panel="settings">⚙ Settings</button>
+    </nav>
+  </div>
+
+  <div class="system-status">
+    <div class="status-pill"><i class="pulse-dot"></i> MESH SYNCHRONIZED</div>
+    <div style="color:var(--muted);margin-top:5px;font-size:10px">Nodes: 118,096 · Latency: 4ms</div>
+  </div>
 </aside>
 
 <main class="workspace">
   <header class="topbar">
-    <input class="search" id="search" placeholder="Search projects, people, assets, commands…">
-    <button class="iconbtn" onclick="toast('Command palette ready')">⌘K</button>
-    <button class="iconbtn" onclick="toast('3 notifications')">◉</button>
-    <div class="profile"><div class="avatar">MA</div><span class="name">MASTIP A</span></div>
+    <div class="search-wrapper">
+      <span class="search-icon">⚲</span>
+      <input class="search" id="search" placeholder="Execute neural command, lookup node, verify DID (Press ⌘K)">
+    </div>
+    <button class="iconbtn voice-btn" onclick="toggleVoice()"><span id="mic-status">🎙</span> VOICE HUD</button>
+    <button class="iconbtn" onclick="toast('Gaze tracking synchronized: 3-Node active')">◉ GAZE</button>
+    <div class="profile"><div class="avatar">MA</div><span class="name" style="font-weight:700">STUDENT</span></div>
   </header>
 
   <div class="breadcrumb">ORBWEBS / <b id="crumb">Overview</b></div>
 
-  <section class="hero panel active" id="overview">
+  <!-- OVERVIEW PANEL -->
+  <section class="panel active" id="overview">
     <div class="hero">
       <div class="card hero-main">
-        <div class="kicker">NEURAL WORKSPACE / PROFILE CORE</div>
-        <h1>ORBWEBS</h1>
-        <p>A modular web operating environment where identity, projects, assets, network, automation and system state meet in one interface.</p>
-        <div class="chips"><span class="chip">Creator</span><span class="chip">Builder</span><span class="chip">AI</span><span class="chip">Design</span><span class="chip">Development</span></div>
+        <div class="kicker">MULTI-LAYERED PRODUCTION MESH</div>
+        <h1>ORBWEBS OS</h1>
+        <p>A unified spatial Web OS delivering zero-copy hardware verification, radial identity graphs, and predictive 3-node neural routing across edge layers.</p>
+        <div class="chips">
+          <span class="chip">Zero-Copy IP</span>
+          <span class="chip">Edge Telemetry</span>
+          <span class="chip">Spatial Mesh</span>
+          <span class="chip">Sovereign Identity</span>
+        </div>
       </div>
-      <div class="card profile-card">
-        <div class="profile-head"><div class="bigavatar">MA</div><div><b>MASTIP A</b><div class="verified">● VERIFIED PROFILE</div><small style="color:#718096">Creator / Builder</small></div></div>
-        <div class="stats"><div class="stat"><b>24</b><span>PROJECTS</span></div><div class="stat"><b>86</b><span>ASSETS</span></div><div class="stat"><b>12</b><span>CONNECTIONS</span></div></div>
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="avatar" style="width:52px;height:52px;font-size:18px">MA</div>
+          <div>
+            <b>STUDENT // ARCHITECT</b>
+            <div style="color:var(--green);font-size:10px;font-weight:700;margin-top:2px">● TIER-1 SOVEREIGN ACCESS</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px">
+          <div style="background:rgba(0,0,0,0.4);border:1px solid var(--line);padding:10px;border-radius:10px;text-align:center"><b style="font-size:18px">10</b><br><small style="color:var(--muted);font-size:9px">LAYERS</small></div>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid var(--line);padding:10px;border-radius:10px;text-align:center"><b style="font-size:18px">118k</b><br><small style="color:var(--muted);font-size:9px">NODES</small></div>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid var(--line);padding:10px;border-radius:10px;text-align:center"><b style="font-size:18px">100%</b><br><small style="color:var(--muted);font-size:9px">ZERO-COPY</small></div>
+        </div>
       </div>
     </div>
+
     <div class="grid">
-      <div class="card tile"><h3>Active Workspace</h3><p>Current environment, pinned tools and active production context.</p><div class="meta"><span class="status"><i class="dot"></i> ONLINE</span><span>SYNC 98%</span></div></div>
-      <div class="card tile"><h3>Project Pipeline</h3><p>Plan → Build → Review → Publish. Each project exposes its own data and permissions.</p><div class="meter"><i style="width:72%"></i></div></div>
-      <div class="card tile"><h3>Network Graph</h3><p>People, teams, collaborators, services and machine agents connected to your profile.</p><div class="meta"><span>12 nodes</span><span>4 active</span></div></div>
+      <div class="card">
+        <div class="kicker">PREDICTIVE ROUTING</div>
+        <h3 style="margin:8px 0">3-Node Shortcut Engine</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.5">Intelligent hotkey and voice parser ready for zero-latency execution.</p>
+        <div class="meter"><i style="width:85%"></i></div>
+      </div>
+      <div class="card">
+        <div class="kicker">COMPASS ALPHA</div>
+        <h3 style="margin:8px 0">Radial Graph Topology</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.5">NFT-weighted peer connections aligned with global geolocational coordinates.</p>
+        <div class="meter"><i style="width:62%"></i></div>
+      </div>
+      <div class="card">
+        <div class="kicker">HARDWARE VERIFICATION</div>
+        <h3 style="margin:8px 0">Zero-Copy Licensing</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.5">Encrypted hardware tokens running over local cryptographic bus.</p>
+        <div class="meter"><i style="width:94%"></i></div>
+      </div>
     </div>
   </section>
 
-  <section class="panel" id="projects"><div class="card"><div class="row"><div><div class="kicker">PROJECT CONTROL</div><h2>Projects</h2></div><button class="primary" onclick="toast('New project flow opened')">+ New Project</button></div><div class="list" style="margin-top:16px"><div class="item"><b>ORB Core</b><br><small>System architecture · Active</small></div><div class="item"><b>AI Interface Lab</b><br><small>Prototype · Review</small></div><div class="item"><b>Media / Spatial</b><br><small>Production · 64%</small></div></div></div></section>
+  <!-- SPATIAL MESH PANEL -->
+  <section class="panel" id="mesh">
+    <div class="card">
+      <div class="kicker">SPATIAL TOPOLOGY</div>
+      <h2>Dynamic 10-Layer Mesh Control</h2>
+      <p style="color:var(--muted);margin:8px 0 20px">Interactive spatial production graph ($r=3$, 118,096 active virtual nodes).</p>
+      <div style="height:320px;border:1px dashed var(--cyan);border-radius:12px;display:grid;place-items:center;background:rgba(0,229,255,0.02)">
+        <button class="primary" onclick="toast('Spatial Graph re-centered on Sovereign Node 0')">Re-Center Mesh Coordinates</button>
+      </div>
+    </div>
+  </section>
 
-  <section class="panel" id="network"><div class="card"><div class="kicker">IDENTITY GRAPH</div><h2>Network</h2><p style="color:#8290a5">A profile-level graph for collaborators, teams, services, agents and public identity.</p><div class="grid"><div class="item"><b>Human</b><br><small>Owner / Creator</small></div><div class="item"><b>Teams</b><br><small>3 connected</small></div><div class="item"><b>Agents</b><br><small>5 connected</small></div></div></div></section>
+  <!-- COMPASS ALPHA PANEL -->
+  <section class="panel" id="compass">
+    <div class="card">
+      <div class="kicker">GEOGRAPHIC & POPULARITY GRAPH</div>
+      <h2>Compass-Alpha Radial Directory</h2>
+      <div class="compass-container">
+        <div class="radial-dial">
+          <div class="dial-axis"></div>
+          <div class="dial-axis vertical"></div>
+          <div class="node-avatar" style="top:20px;left:100px" title="Node: Prime-Alpha">01</div>
+          <div class="node-avatar" style="bottom:30px;right:40px" title="Node: Edge-7">02</div>
+          <div class="node-avatar" style="top:90px;right:20px" title="Node: Agent-X">03</div>
+          <div style="font-size:10px;color:var(--cyan);font-weight:800">COMPASS</div>
+        </div>
+        <div>
+          <h3>Radial Telemetry</h3>
+          <p style="color:var(--muted);margin:8px 0 16px">Oriented relative to physical observer coordinates with NFT social weight distribution.</p>
+          <div style="display:grid;gap:10px">
+            <div class="card" style="padding:12px"><b>Alpha-Node 01:</b> Tehran Mesh Ring // Latency 2ms</div>
+            <div class="card" style="padding:12px"><b>Alpha-Node 02:</b> Cloudflare Edge P2P // Latency 11ms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <section class="panel" id="activity"><div class="card"><div class="kicker">EVENT STREAM</div><h2>Activity</h2><div class="list"><div class="item"><b>Project updated</b><br><small>2 minutes ago · ORB Core</small></div><div class="item"><b>Asset published</b><br><small>1 hour ago · Neural UI</small></div><div class="item"><b>Connection accepted</b><br><small>Yesterday · Network</small></div></div></div></section>
+  <!-- ZERO-COPY HARDWARE PANEL -->
+  <section class="panel" id="hardware">
+    <div class="card">
+      <div class="kicker">HARDWARE ENCLAVE</div>
+      <h2>Zero-Copy Proprietary Licensing Engine</h2>
+      <p style="color:var(--muted);margin:8px 0 20px">Memory-mapped device verification without kernel overhead.</p>
+      <div class="grid">
+        <div class="card" style="background:#070b12"><b>Enclave Status</b><br><small style="color:var(--green)">CRYPTOGRAPHICALLY SECURE</small></div>
+        <div class="card" style="background:#070b12"><b>DMA Controller</b><br><small style="color:var(--cyan)">ZERO-COPY BUS LOCKED</small></div>
+        <div class="card" style="background:#070b12"><b>Device Registry</b><br><small style="color:#fff">4 Active Licenses</small></div>
+      </div>
+    </div>
+  </section>
 
-  <section class="panel" id="profile"><div class="card"><div class="kicker">IDENTITY / PROFILE</div><h2>Profile</h2>
-    <div class="field"><label>DISPLAY NAME</label><input value="MASTIP A"></div>
-    <div class="field"><label>USERNAME</label><input value="@mastipa"></div>
-    <div class="field"><label>ROLE</label><select><option>Creator / Builder</option><option>Designer</option><option>Developer</option><option>Organization</option></select></div>
-    <div class="field"><label>BIO</label><textarea>Creative technology, AI, interface systems and digital products.</textarea></div>
-    <div class="field"><label>LOCATION</label><input value=""></div>
-    <div class="field"><label>WEBSITE</label><input placeholder="https://"></div>
-    <div class="field"><label>SKILLS</label><input value="AI, Figma, UI/UX, Web, Creative Technology"></div>
-    <button class="primary" onclick="toast('Profile changes saved locally')">Save Profile</button>
-  </div></section>
+  <!-- PROJECTS PANEL -->
+  <section class="panel" id="projects">
+    <div class="card">
+      <h2>Active Projects Pipeline</h2>
+      <div style="display:grid;gap:12px;margin-top:16px">
+        <div class="card" style="padding:14px;background:#080c14"><b>ORBWEBS Sovereign Web OS</b><br><small style="color:var(--muted)">Spatial Web Engine & UI · Active Tier-1</small></div>
+        <div class="card" style="padding:14px;background:#080c14"><b>Jet-Ski Twin Turbo Dynamics</b><br><small style="color:var(--muted)">Industrial Prototype Design · Completed</small></div>
+      </div>
+    </div>
+  </section>
 
-  <section class="panel" id="security"><div class="card"><div class="kicker">SECURITY CORE</div><h2>Security</h2><div class="item">2FA <span style="float:right;color:var(--green)">ENABLED</span></div><br><div class="item">Active sessions <span style="float:right">3</span></div><br><div class="item">API tokens <span style="float:right">2</span></div></div></section>
-  <section class="panel" id="billing"><div class="card"><div class="kicker">ACCOUNT / PLAN</div><h2>Billing</h2><div class="item"><b>Workspace Plan</b><br><small>Plan, invoices, payment methods, usage and limits.</small></div></div></section>
-  <section class="panel" id="settings"><div class="card"><div class="kicker">SYSTEM PREFERENCES</div><h2>Settings</h2><div class="item">Theme <span style="float:right">Dark / Neural</span></div><br><div class="item">Language <span style="float:right">English</span></div><br><div class="item">Notifications <span style="float:right">Enabled</span></div></div></section>
+  <!-- PROFILE PANEL -->
+  <section class="panel" id="profile">
+    <div class="card">
+      <div class="kicker">IDENTITY MATRIX</div>
+      <h2>Sovereign Profile & DID</h2>
+      <div class="field"><label>NICKNAME / DESIGNATION</label><input value="STUDENT" readonly></div>
+      <div class="field"><label>PROFESSIONAL ROLE</label><input value="DIGITAL NETWORK ARCHITECT"></div>
+      <div class="field"><label>SOVEREIGN PUBLIC KEY (DID)</label><input value="did:orb:7f92b4c10a34e899201f8" readonly></div>
+      <button class="primary" onclick="toast('Cryptographic Credentials Saved')">Update Enclave Profile</button>
+    </div>
+  </section>
+
+  <!-- SECURITY PANEL -->
+  <section class="panel" id="security">
+    <div class="card">
+      <div class="kicker">SECURITY RING</div>
+      <h2>Deep Cyber Enclave Security</h2>
+      <p style="color:var(--muted);margin-bottom:14px">Tiered access levels with multi-agent consensus validation.</p>
+      <div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between"><span>Layer-1 Kernel Shield</span><span style="color:var(--green)">ENGAGED</span></div>
+      <div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between"><span>Zero-Trust Tunnel</span><span style="color:var(--green)">ACTIVE</span></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS PANEL -->
+  <section class="panel" id="settings">
+    <div class="card">
+      <h2>System Preferences</h2>
+      <div class="field"><label>PREDICTIVE ROUTING ACCELERATOR</label><select><option>Hardware (GPU WebGL Mesh)</option><option>CPU Software Fallback</option></select></div>
+    </div>
+  </section>
 </main>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const buttons=[...document.querySelectorAll('.nav button')];
-const panels=[...document.querySelectorAll('.panel')];
-const crumb=document.getElementById('crumb');
-buttons.forEach(b=>b.onclick=()=>{
-  buttons.forEach(x=>x.classList.remove('active')); b.classList.add('active');
-  panels.forEach(p=>p.classList.remove('active'));
-  const p=document.getElementById(b.dataset.panel); if(p)p.classList.add('active');
-  crumb.textContent=b.textContent.replace(/^[^\w]+/,'').trim();
+// Tab Switching
+const buttons = document.querySelectorAll('.nav button');
+const panels = document.querySelectorAll('.panel');
+const crumb = document.getElementById('crumb');
+
+buttons.forEach(b => {
+  b.onclick = () => {
+    buttons.forEach(btn => btn.classList.remove('active'));
+    b.classList.add('active');
+    panels.forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(b.dataset.panel);
+    if(target) target.classList.add('active');
+    crumb.textContent = b.textContent.replace(/^[^\w]+/,'').trim();
+  };
 });
-document.getElementById('search').addEventListener('keydown',e=>{
-  if(e.key==='Enter') toast('Searching: '+e.target.value);
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window.tt);
+  window.tt = setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// Shortcut Engine (⌘K or Ctrl+K)
+window.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search').focus();
+    toast("Shortcut Activated: 3-Node Command Line");
+  }
 });
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',2200)}
+
+// Voice Input Simulated Toggle
+let voiceActive = false;
+function toggleVoice() {
+  voiceActive = !voiceActive;
+  const mic = document.getElementById('mic-status');
+  if(voiceActive) {
+    mic.textContent = '🔴';
+    toast("Voice HUD Listening: Speak command...");
+  } else {
+    mic.textContent = '🎙';
+    toast("Voice HUD Standby");
+  }
+}
+
+// Live Background Spatial Mesh Particles
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+let w, h, particles = [];
+
+function initMesh() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+  particles = [];
+  for(let i = 0; i < 70; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 1
+    });
+  }
+}
+
+function drawMesh() {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(0, 229, 255, 0.4)';
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.05)';
+
+  for(let i = 0; i < particles.length; i++) {
+    let p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    if(p.x < 0 || p.x > w) p.vx *= -1;
+    if(p.y < 0 || p.y > h) p.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    for(let j = i + 1; j < particles.length; j++) {
+      let p2 = particles[j];
+      let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+      if(dist < 140) {
+        ctx.lineWidth = 1 - dist / 140;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawMesh);
+}
+
+window.addEventListener('resize', initMesh);
+initMesh();
+drawMesh();
 </script>
 </body>
 </html>
