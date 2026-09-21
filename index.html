@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBWEBS // NEURAL SPHERE CORE</title>
+    <title>ORBWEBS // NEURAL SYSTEM CORE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
@@ -224,6 +224,90 @@
             line-height: 1.4;
         }
 
+
+        .control-panel {
+            position: absolute;
+            right: 24px;
+            top: 120px;
+            width: min(360px, calc(100vw - 48px));
+            padding: 14px;
+            border: 1px solid var(--border-glass);
+            border-radius: 6px;
+            background: rgba(6, 9, 20, 0.78);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 10px 40px rgba(0,0,0,.25);
+        }
+        .panel-head {
+            display:flex;
+            justify-content:space-between;
+            gap:16px;
+            font-size:10px;
+            letter-spacing:1.2px;
+            color:#fff;
+            margin-bottom:12px;
+        }
+        .panel-kicker { color:var(--cyan-core); }
+        .panel-grid {
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:8px;
+        }
+        .panel-grid div {
+            border:1px solid rgba(255,255,255,.07);
+            padding:9px;
+            min-width:0;
+        }
+        .panel-grid span {
+            display:block;
+            font-size:8px;
+            color:#7d8797;
+            margin-bottom:4px;
+        }
+        .panel-grid strong {
+            display:block;
+            color:#fff;
+            font-size:10px;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+        .progress-track {
+            height:2px;
+            margin-top:12px;
+            background:rgba(255,255,255,.08);
+            overflow:hidden;
+        }
+        .progress-track i {
+            display:block;
+            width:18%;
+            height:100%;
+            background:var(--cyan-core);
+            box-shadow:0 0 12px var(--cyan-core);
+            transition:width .45s ease;
+        }
+        .action-card:focus-visible {
+            outline:1px solid var(--cyan-core);
+            outline-offset:3px;
+        }
+        @media (max-width: 840px) {
+            .control-panel {
+                top:auto;
+                bottom:155px;
+                right:16px;
+                width:calc(100vw - 32px);
+            }
+        }
+        @media (max-width: 560px) {
+            .hud-overlay { padding:16px; }
+            .hud-header { flex-direction:column; gap:12px; }
+            .telemetry-bar { gap:10px; flex-wrap:wrap; }
+            .telemetry-item { align-items:flex-start; }
+            .control-panel { bottom:220px; }
+            .panel-grid { grid-template-columns:1fr 1fr 1fr; }
+            .hud-footer { gap:8px; }
+            .action-card { padding:10px; }
+            .card-desc { font-size:9px; }
+        }
+
         /* Responsive */
         @media (max-width: 840px) {
             .hud-footer {
@@ -237,7 +321,7 @@
 </head>
 <body>
     <div class="scanlines"></div>
-    <canvas id="sphere-canvas"></canvas>
+    <canvas id="sphere-canvas" aria-label="Interactive neural system visualization"></canvas>
 
     <div class="hud-overlay">
         <!-- Top Nav Header -->
@@ -282,22 +366,35 @@
             </div>
         </div>
 
+        <section class="control-panel interactive" aria-live="polite">
+            <div class="panel-head">
+                <span class="panel-kicker">ACTIVE AXIS</span>
+                <span id="active-axis">RUNTIME / ACTION</span>
+            </div>
+            <div class="panel-grid">
+                <div><span>STATE</span><strong id="system-state">READY</strong></div>
+                <div><span>REQUEST</span><strong id="request-state">IDLE</strong></div>
+                <div><span>SYNC</span><strong id="sync-state">LOCAL</strong></div>
+            </div>
+            <div class="progress-track"><i id="progress-bar"></i></div>
+        </section>
+
         <!-- Bottom Actions -->
-        <footer class="hud-footer interactive">
-            <div class="action-card" onclick="triggerNode(1)">
-                <div class="card-tag">SYSTEM CORE // 01</div>
-                <div class="card-name">MODELING HUB</div>
-                <div class="card-desc">Sovereign pipeline between avatar networks, fashion creators, and micro-manufacturing.</div>
+        <footer class="hud-footer interactive" aria-label="System control axes">
+            <div class="action-card" data-action="runtime" onclick="triggerNode(1)" tabindex="0" role="button">
+                <div class="card-tag">AXIS // 01</div>
+                <div class="card-name">RUNTIME / ACTION</div>
+                <div class="card-desc">Real commands, system state, loading/error/success feedback and executable user flows.</div>
             </div>
-            <div class="action-card" onclick="triggerNode(2)">
-                <div class="card-tag">SYSTEM CORE // 02</div>
-                <div class="card-name">USTIUDO ENGINE</div>
-                <div class="card-desc">Zero-latency procedural cinematic shaders, high-poly rendering, and spatial telemetry.</div>
+            <div class="action-card" data-action="api" onclick="triggerNode(2)" tabindex="0" role="button">
+                <div class="card-tag">AXIS // 02</div>
+                <div class="card-name">FRONT ↔ BACK</div>
+                <div class="card-desc">API contracts, authentication, data synchronization, telemetry and backend-ready state management.</div>
             </div>
-            <div class="action-card" onclick="triggerNode(3)">
-                <div class="card-tag">SYSTEM CORE // 03</div>
-                <div class="card-name">COMPASS-ALPHA</div>
-                <div class="card-desc">Radial contacts orientation, biometric identity rings, and sovereign credential verification.</div>
+            <div class="action-card" data-action="ux" onclick="triggerNode(3)" tabindex="0" role="button">
+                <div class="card-tag">AXIS // 03</div>
+                <div class="card-name">UI / UX SYSTEM</div>
+                <div class="card-desc">Information hierarchy, responsive interaction, accessibility and clear feedback at every step.</div>
             </div>
         </footer>
     </div>
@@ -363,7 +460,7 @@
             [-Math.sqrt(2/9) * coreRadius, coreRadius/3, -Math.sqrt(2/3) * coreRadius]
         ];
 
-        const coreLabels = ["ORB-ROOT", "MODELING", "USTIUDO", "COMPASS"];
+        const coreLabels = ["ORB-ROOT", "MODELING", "COMPASS", "NETWORK"];
 
         tVerts.forEach((v, idx) => {
             nodes.push(new Node3D(v[0], v[1], v[2], 0, coreLabels[idx]));
@@ -436,11 +533,55 @@
 
         window.addEventListener('touchend', () => isDragging = false);
 
-        // Core Interactive Trigger
+        // System state / Frontend interaction layer
+        const AXES = {
+            1: { name: 'RUNTIME / ACTION', state: 'EXECUTING', request: 'COMMAND', sync: 'LOCAL', progress: 78 },
+            2: { name: 'FRONT ↔ BACK', state: 'CONNECTED', request: 'API /SYNC', sync: 'LIVE', progress: 92 },
+            3: { name: 'UI / UX SYSTEM', state: 'INTERACTIVE', request: 'USER FLOW', sync: 'LOCAL', progress: 66 }
+        };
+
+        const activeAxis = document.getElementById('active-axis');
+        const systemState = document.getElementById('system-state');
+        const requestState = document.getElementById('request-state');
+        const syncState = document.getElementById('sync-state');
+        const progressBar = document.getElementById('progress-bar');
+
         function triggerNode(id) {
-            targetRotY += (id * 1.2);
+            const axis = AXES[id];
+            if (!axis) return;
+
+            targetRotY += id * 1.2;
             targetRotX = 0.2;
+
+            activeAxis.textContent = axis.name;
+            systemState.textContent = axis.state;
+            requestState.textContent = axis.request;
+            syncState.textContent = axis.sync;
+            progressBar.style.width = axis.progress + '%';
+
+            document.querySelectorAll('.action-card').forEach(card => card.classList.remove('active'));
+            const activeCard = document.querySelector(`.action-card[data-action="${id === 1 ? 'runtime' : id === 2 ? 'api' : 'ux'}"]`);
+            if (activeCard) activeCard.classList.add('active');
         }
+
+        document.querySelectorAll('.action-card').forEach((card, index) => {
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    triggerNode(index + 1);
+                }
+            });
+        });
+
+        // Simulated backend heartbeat: replace this interval with fetch/WebSocket/SSE in production.
+        let heartbeat = 0;
+        setInterval(() => {
+            heartbeat++;
+            document.getElementById('node-count').textContent =
+                (118096 + (heartbeat % 17)).toLocaleString();
+            document.querySelector('.telemetry-val[style*="cyan"]')
+                ?.replaceChildren(document.createTextNode('ONLINE // SYNCED'));
+        }, 3000);
 
         // Projection & Render Loop
         const fov = 480;
