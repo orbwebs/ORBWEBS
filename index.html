@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBWEBS | Sovereign Media Mesh & Cyber Core</title>
+
+    <meta name="description" content="ORBWEBS Sovereign Infrastructure: High-frequency spatial mesh, autonomous cyber spider core, and zero-copy digital identity.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,800;1,300&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/hud-core.css">
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <canvas id="viewportCanvas"></canvas>
+
+    <nav class="hud-navbar interactive">
+        <div class="brand-wrapper">
+            <div class="brand-core">ORBWEBS</div>
+            <div class="brand-badge">ALPHA 2.1</div>
+        </div>
+        <div class="telemetry-feed">
+            <div>MESH CLUSTER: <b>ONLINE [100%]</b></div>
+            <div id="spiderLog">STATE: <b>INITIALIZING...</b></div>
+        </div>
+    </nav>
+
+    <div class="hud-wrapper">
+        <section class="spatial-block">
+            <div class="hero-terminal interactive">
+                <div class="hero-tag">AUTONOMOUS SOVEREIGN NETWORK</div>
+                <h1 class="hero-title">SPATIAL MESH & REVERSIBLE ARCHITECTURE</h1>
+                <p class="hero-desc">
+                    An interconnected ecosystem combining dynamic fashion networks, autonomous avatar modeling, zero-copy protocol verification, and real-time edge telemetry.
+                </p>
+                <div class="action-cluster">
+                    <a href="https://github.com/orbwebs/ORBWEBS" target="_blank" class="btn-cyber primary">EXPLORE REPO</a>
+                    <a href="#matrix-pillars" class="btn-cyber secondary">AUDIT MESH NODES</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="spatial-block" id="matrix-pillars">
+            <div class="pillar-grid interactive">
+                <div class="pillar-card">
+                    <h3>01. MODELING HUB</h3>
+                    <p>Direct bridge between fashion designers, digital avatars, and physical production lines with micro-contract validation.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3>02. USTIUDO CORE</h3>
+                    <p>High-fidelity cinematic workflows powered by Unreal Engine 5 visual logic and Unified Engine HUD telemetry.</p>
+                </div>
+                <div class="pillar-card">
+                    <h3>03. ZERO-COPY PROTOCOL</h3>
+                    <p>Low-latency hardware access, decentralized accessory licensing, and sovereign digital identity encryption.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="hud-footer">
+        <div><span class="live-pulse"></span> COMPASS-ALPHA: RADIAL DIRECTORY LOCKED</div>
+        <div>ORBWEBS INFRASTRUCTURE &copy; 2026 // EDGE DEPLOYED</div>
+    </footer>
+
+    <script src="assets/js/mesh-engine.js"></script>
+    <script src="assets/js/spider-entity.js"></script>
+    <script>
+        const canvas = document.getElementById('viewportCanvas');
+        const mesh = new MeshEngine(canvas);
+        const spider = new CyberSpider(canvas, mesh);
+
+        function mainLoop(now) {
+            mesh.ctx.clearRect(0, 0, mesh.width, mesh.height);
+            mesh.render();
+            spider.update(now);
+            spider.render(now);
+            requestAnimationFrame(mainLoop);
+        }
+        requestAnimationFrame(mainLoop);
+    </script>
+</body>
+</html>
