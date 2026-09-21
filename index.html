@@ -3,19 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ORBWEBS — Autonomous Copilot OS</title>
+<title>ORBWEBS — Multimodal AI Copilot (Image & Voice)</title>
 <style>
 :root {
   --bg: #030508;
   --panel: rgba(10, 14, 22, 0.88);
-  --panel2: rgba(17, 24, 38, 0.95);
   --line: rgba(0, 229, 255, 0.22);
   --text: #edf4ff;
   --muted: #7e90a8;
   --cyan: #00e5ff;
   --violet: #9d4edd;
   --green: #00ffa3;
-  --amber: #ffbd66;
   --danger: #ff3366;
   --radius: 14px;
   --glow: 0 0 20px rgba(0, 229, 255, 0.25);
@@ -25,27 +23,16 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font: 13px/1.5 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  font: 13px/1.5 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   transition: background 0.3s;
 }
 
-#neural-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-}
-
 .app {
   display: grid;
-  grid-template-columns: 240px 1fr 340px;
+  grid-template-columns: 240px 1fr 360px;
   min-height: 100vh;
-  position: relative;
-  z-index: 1;
 }
 
 /* Sidebar */
@@ -54,30 +41,20 @@ aside {
   background: rgba(4, 7, 12, 0.94);
   backdrop-filter: blur(20px);
   padding: 18px 14px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
 .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; }
-.brand-orb { width: 32px; height: 32px; }
 .brand-name {
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.25em;
+  font-size: 16px; font-weight: 900; letter-spacing: 0.25em;
   background: linear-gradient(90deg, #fff, var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-
-.section-label { color: #48566a; font-size: 9px; font-weight: 700; letter-spacing: 0.18em; margin: 14px 8px 6px; }
 .nav button {
   width: 100%; border: 0; background: none; color: #94a3b8; text-align: left;
-  padding: 9px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center;
-  gap: 10px; font-weight: 500; transition: 0.2s;
+  padding: 10px 12px; border-radius: 8px; cursor: pointer; display: flex;
+  align-items: center; gap: 10px; font-weight: 500; transition: 0.2s;
 }
 .nav button:hover { background: rgba(0, 229, 255, 0.08); color: #fff; }
 .nav button.active {
@@ -85,18 +62,14 @@ aside {
   color: var(--cyan); border-left: 3px solid var(--cyan);
 }
 
-/* Main Area */
-.workspace { padding: 20px 28px 60px; max-width: 100%; overflow-y: auto; }
-.topbar {
-  display: flex; align-items: center; gap: 12px; padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
+/* Main */
+.workspace { padding: 20px 28px 60px; overflow-y: auto; }
+.topbar { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; backdrop-filter: blur(16px); margin-bottom: 16px;
 }
-.search {
-  flex: 1; background: rgba(10, 15, 24, 0.8); border: 1px solid var(--line);
-  border-radius: 10px; padding: 9px 14px; color: #fff; outline: none;
-}
-.search:focus { border-color: var(--cyan); box-shadow: var(--glow); }
-
+.kicker { color: var(--cyan); font-size: 9px; font-weight: 800; letter-spacing: 0.18em; margin-bottom: 4px; }
 .btn {
   border: 1px solid var(--line); background: rgba(13, 20, 31, 0.8);
   color: #dce7f5; border-radius: 8px; padding: 8px 12px; cursor: pointer;
@@ -104,15 +77,6 @@ aside {
 }
 .btn:hover { border-color: var(--cyan); color: #fff; }
 .btn-primary { background: linear-gradient(135deg, var(--cyan), var(--violet)); border: 0; color: #000; font-weight: 700; }
-.btn-primary:hover { box-shadow: 0 0 16px rgba(0, 229, 255, 0.4); }
-.btn-danger { border-color: var(--danger); color: var(--danger); background: rgba(255, 51, 102, 0.1); }
-.btn-danger:hover { background: var(--danger); color: #fff; }
-
-.card {
-  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 18px; backdrop-filter: blur(16px); margin-bottom: 16px; transition: border-color 0.3s;
-}
-.kicker { color: var(--cyan); font-size: 9px; font-weight: 800; letter-spacing: 0.18em; margin-bottom: 4px; }
 .item-row {
   display: flex; justify-content: space-between; align-items: center;
   padding: 10px 12px; background: rgba(255, 255, 255, 0.02);
@@ -122,369 +86,197 @@ aside {
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* Interactive Compass */
-.compass-box { display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: center; }
-.dial { width: 180px; height: 180px; border-radius: 50%; border: 1px dashed var(--cyan); position: relative; margin: auto; }
-.dial-node {
-  width: 28px; height: 28px; border-radius: 50%; position: absolute;
-  border: 2px solid var(--cyan); background: #070b12; display: grid; place-items: center;
-  font-size: 10px; cursor: pointer; transition: 0.2s;
+/* Image Gallery Grid */
+.gen-gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 14px;
 }
-.dial-node:hover, .dial-node.active { background: var(--cyan); color: #000; box-shadow: 0 0 14px var(--cyan); transform: scale(1.15); }
+.gen-card {
+  border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #050811;
+  display: flex; flex-direction: column;
+}
+.gen-card img { width: 100%; height: 160px; object-fit: cover; }
+.gen-card-body { padding: 10px; font-size: 11px; }
 
-/* Right Copilot Engine Sidebar */
+/* Copilot Panel */
 .copilot-panel {
-  border-left: 1px solid var(--line);
-  background: rgba(5, 8, 14, 0.95);
-  backdrop-filter: blur(24px);
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-}
-.copilot-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-}
-.ai-badge {
-  background: linear-gradient(135deg, var(--cyan), var(--violet));
-  color: #000;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-weight: 800;
-  font-size: 10px;
+  border-left: 1px solid var(--line); background: rgba(5, 8, 14, 0.95);
+  backdrop-filter: blur(24px); height: 100vh; display: flex; flex-direction: column; padding: 16px;
 }
 .copilot-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: 12px;
+  flex: 1; overflow-y: auto; padding: 14px 0; display: flex; flex-direction: column; gap: 10px; font-size: 12px;
 }
-.msg {
-  padding: 10px 12px;
-  border-radius: 10px;
-  max-width: 90%;
-  line-height: 1.4;
-  word-break: break-word;
-}
-.msg.ai {
-  background: rgba(0, 229, 255, 0.06);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  align-self: flex-start;
-  color: #d8eaff;
-}
-.msg.user {
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(157, 78, 221, 0.2));
-  border: 1px solid rgba(157, 78, 221, 0.4);
-  align-self: flex-end;
-  color: #fff;
-}
-.msg-code {
-  font-family: monospace;
-  background: #010307;
-  padding: 4px 6px;
-  border-radius: 4px;
-  color: var(--cyan);
-  font-size: 10px;
-  display: block;
-  margin-top: 5px;
-}
-.copilot-input-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-.copilot-input-box textarea {
-  width: 100%;
-  height: 60px;
-  background: #080c14;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: #fff;
-  resize: none;
-  outline: none;
-  font-size: 12px;
-}
-.copilot-input-box textarea:focus { border-color: var(--cyan); box-shadow: var(--glow); }
+.msg { padding: 10px 12px; border-radius: 10px; max-width: 90%; line-height: 1.4; word-break: break-word; }
+.msg.ai { background: rgba(0, 229, 255, 0.06); border: 1px solid rgba(0, 229, 255, 0.25); align-self: flex-start; color: #d8eaff; }
+.msg.user { background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(157, 78, 221, 0.2)); border: 1px solid rgba(157, 78, 221, 0.4); align-self: flex-end; color: #fff; }
+.msg-img { width: 100%; border-radius: 6px; margin-top: 8px; border: 1px solid var(--cyan); }
 
-.quick-prompts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 6px;
+.copilot-input-box { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.copilot-input-box textarea {
+  width: 100%; height: 55px; background: #080c14; border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 10px; color: #fff; resize: none; outline: none;
 }
-.qp-chip {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  font-size: 10px;
-  padding: 2px 8px;
-  cursor: pointer;
-  color: var(--muted);
-}
-.qp-chip:hover { border-color: var(--cyan); color: var(--cyan); }
+.input-actions { display: flex; gap: 8px; }
 </style>
 </head>
 <body>
 
-<canvas id="neural-canvas"></canvas>
-
 <div class="app">
-  <!-- 1. LEFT NAVIGATION -->
+  <!-- LEFT NAV -->
   <aside>
     <div>
       <div class="brand">
-        <div class="brand-orb">
-          <svg viewBox="0 0 100 100" fill="none" stroke="var(--cyan)" stroke-width="6">
-            <circle cx="50" cy="50" r="42" stroke-dasharray="6 3"/>
-            <line x1="50" y1="8" x2="50" y2="92"/>
-            <line x1="8" y1="50" x2="92" y2="50"/>
-            <polygon points="50,20 80,50 50,80 20,50"/>
-            <circle cx="50" cy="50" r="8" fill="var(--cyan)"/>
-          </svg>
-        </div>
         <div class="brand-name">ORBWEBS</div>
       </div>
-
-      <div class="section-label">CORE MESH</div>
       <nav class="nav">
-        <button class="active" data-panel="overview">⌂ Overview</button>
-        <button data-panel="projects">▤ Projects Pipeline</button>
-        <button data-panel="compass">◎ Compass-Alpha</button>
-        <button data-panel="hardware">⬡ Zero-Copy Enclave</button>
-        <button data-panel="profile">◉ Profile & DID</button>
+        <button class="active" onclick="switchTab('overview')">⌂ Overview</button>
+        <button onclick="switchTab('gallery')">🖼 AI Image Gallery</button>
+        <button onclick="switchTab('projects')">▤ Projects Lattice</button>
       </nav>
     </div>
-
-    <div class="card" style="padding:10px;margin-bottom:0">
-      <div style="font-size:10px;color:var(--green);font-weight:700">● RUNTIME COUPLING</div>
-      <div style="font-size:9px;color:var(--muted);margin-top:2px" id="latency-val">Agent Direct Link Active</div>
+    <div class="card" style="padding:10px;margin:0">
+      <div style="font-size:10px;color:var(--green)">● MULTIMODAL RUNTIME</div>
+      <div style="font-size:9px;color:var(--muted)">Image Gen + TTS + Voice Ready</div>
     </div>
   </aside>
 
-  <!-- 2. CENTER WORKSPACE -->
-  <main class="workspace" id="workspace-root">
+  <!-- CENTER WORKSPACE -->
+  <main class="workspace">
     <header class="topbar">
-      <input class="search" id="quick-find" placeholder="Search parameters or prompt assistant on right...">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:28px;height:28px;border-radius:6px;background:var(--cyan);color:#000;display:grid;place-items:center;font-weight:900" id="avatar-badge">ST</div>
-        <span style="font-weight:700" id="user-display">STUDENT</span>
-      </div>
+      <div style="flex:1;font-weight:700;font-size:14px">MULTIMODAL SPATIAL OS</div>
+      <button class="btn" id="voice-toggle-btn" onclick="toggleVoiceSpeech()">🔊 Voice Feedback: ON</button>
     </header>
 
-    <div style="margin:16px 0;font-size:11px;color:var(--muted)">ACTIVE MODULE: <b id="crumb" style="color:var(--cyan)">Overview</b></div>
-
-    <!-- PANELS -->
+    <!-- OVERVIEW -->
     <section class="panel active" id="overview">
-      <div class="card" id="overview-hero">
-        <div class="kicker">SOVEREIGN CORE</div>
-        <h1 id="hero-title" style="font-size:26px;margin:6px 0">Spatial Operating System</h1>
-        <p id="hero-desc" style="color:var(--muted)">Mesh connected. The autonomous copilot on the right panel has full control to modify parameters, UI layouts, colors, and live state.</p>
+      <div class="card" style="margin-top:16px">
+        <div class="kicker">AUTONOMOUS MULTIMODAL CORE</div>
+        <h1 style="font-size:24px;margin:6px 0">Visual & Acoustic Neural Interface</h1>
+        <p style="color:var(--muted)">می‌توانید با دستیار صوتی صحبت کنید، دستور تغییر ظاهر دهید یا درخواست خلق تصاویر جدید داشته باشید.</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-        <div class="card" style="margin-bottom:0">
-          <div class="kicker">TOTAL PROJECTS</div>
-          <h2 id="metric-projects" style="color:var(--cyan);font-size:22px">2</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div class="card">
+          <div class="kicker">GENERATED ASSETS</div>
+          <h2 id="asset-count" style="color:var(--cyan);font-size:22px">0</h2>
         </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="kicker">ACTIVE ENCLAVES</div>
-          <h2 id="metric-licenses" style="color:var(--green);font-size:22px">3</h2>
+        <div class="card">
+          <div class="kicker">VOICE ENGINE</div>
+          <h2 style="color:var(--green);font-size:22px">WEB-SPEECH</h2>
         </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="kicker">THEME SPECTRUM</div>
-          <h2 id="metric-theme" style="color:var(--violet);font-size:22px">CYAN/NEON</h2>
+        <div class="card">
+          <div class="kicker">IMAGE MODEL</div>
+          <h2 style="color:var(--violet);font-size:22px">FLUX / NEURAL</h2>
         </div>
-      </div>
-
-      <div id="dynamic-injections">
-        <!-- AI Agent can inject cards here directly -->
       </div>
     </section>
 
+    <!-- GALLERY -->
+    <section class="panel" id="gallery">
+      <div class="card" style="margin-top:16px">
+        <div class="kicker">GENERATIVE ASSETS BUFFER</div>
+        <h2>Generated Visuals</h2>
+        <div class="gen-gallery" id="image-container">
+          <!-- Dynamic Images will be placed here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
     <section class="panel" id="projects">
-      <div class="card">
-        <div class="kicker">EXECUTION PIPELINE</div>
-        <h2>Projects Lattice</h2>
-        <div id="project-list" style="margin-top:14px"></div>
-      </div>
-    </section>
-
-    <section class="panel" id="compass">
-      <div class="card">
-        <div class="kicker">RADIAL CONTACTS & TELEMETRY</div>
-        <h2>Compass-Alpha</h2>
-        <div class="compass-box" style="margin-top:16px">
-          <div class="dial">
-            <div class="dial-node active" style="top:10px;left:75px" onclick="pickNode('Tehran Ring', '2ms', '185.143.23.1')">01</div>
-            <div class="dial-node" style="bottom:15px;right:25px" onclick="pickNode('Frankfurt CDN', '38ms', '104.21.5.88')">02</div>
-            <div class="dial-node" style="top:60px;right:10px" onclick="pickNode('Helsinki Fast Node', '46ms', '95.216.12.4')">03</div>
-            <div class="dial-node" style="bottom:50px;left:10px" onclick="pickNode('Local Sovereign Enclave', '1ms', '127.0.0.1')">04</div>
-          </div>
-          <div class="card" style="background:#05070e;margin-bottom:0">
-            <div class="kicker">EDGE NODE TELEMETRY</div>
-            <h3 id="node-name" style="color:var(--cyan);margin:6px 0">Tehran Ring</h3>
-            <div class="item-row"><span>Latency:</span><b id="node-ping" style="color:var(--green)">2ms</b></div>
-            <div class="item-row"><span>IP Address:</span><code id="node-ip">185.143.23.1</code></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel" id="hardware">
-      <div class="card">
-        <div class="kicker">HARDWARE ENCLAVE</div>
-        <h2>Zero-Copy Device Locks</h2>
-        <div id="licenses-list" style="margin-top:14px"></div>
-      </div>
-    </section>
-
-    <section class="panel" id="profile">
-      <div class="card">
-        <div class="kicker">SOVEREIGN IDENTITY</div>
-        <h2>Profile Credentials</h2>
-        <div style="display:grid;gap:10px;margin-top:14px">
-          <div class="item-row"><span>Designation:</span><b id="prof-name">STUDENT</b></div>
-          <div class="item-row"><span>Vocation:</span><b id="prof-role">DIGITAL NETWORK ARCHITECT</b></div>
-          <div class="item-row"><span>Security Tier:</span><b style="color:var(--green)">Level 1 Sovereign</b></div>
-        </div>
+      <div class="card" style="margin-top:16px">
+        <div class="kicker">PIPELINE</div>
+        <h2>Active Mesh Projects</h2>
+        <div id="proj-list" style="margin-top:12px"></div>
       </div>
     </section>
   </main>
 
-  <!-- 3. RIGHT AUTONOMOUS COPILOT PANEL -->
+  <!-- RIGHT COPILOT -->
   <aside class="copilot-panel">
-    <div class="copilot-header">
-      <div class="ai-badge">ORB-AI</div>
-      <div>
-        <b style="font-size:12px">Autonomous Copilot</b>
-        <div style="font-size:9px;color:var(--green)">DOM Execution Engine Ready</div>
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px">
+      <b style="font-size:13px;color:var(--cyan)">Multimodal Copilot</b>
+      <span style="font-size:10px;background:var(--cyan);color:#000;padding:2px 6px;border-radius:4px;font-weight:800">VOICE/VISION</span>
     </div>
 
     <div class="copilot-messages" id="chat-stream">
       <div class="msg ai">
-        درود STUDENT. من دستیار هوشمند هسته ORBWEBS هستم.<br>
-        شما می‌توانید با پیام متنی یا دستورات مستقیم، تمام اجزای صفحه، رنگ‌ها، پروژه‌ها و ماژول‌ها را بازتعریف یا دستکاری کنید.
+        درود STUDENT. من به موتور تولید تصویر زنده و سنتز صدا متصل هستم.<br>
+        مثال: بگویید <b>"تصویر یک خودروی فضایی بساز"</b> یا <b>"تم رو بنفش کن"</b>.
       </div>
     </div>
 
-    <div class="quick-prompts">
-      <span class="qp-chip" onclick="sendPrompt('رنگ تم رو بنفش و نئونی کن')">🎨 تم نئون بنفش</span>
-      <span class="qp-chip" onclick="sendPrompt('پروژه جدید به نام TwinTurbo JetSki اضافه کن')">➕ پروژه جت‌اسکی</span>
-      <span class="qp-chip" onclick="sendPrompt('برو به قطب‌نما')">◎ ناوبری کامپاس</span>
-      <span class="qp-chip" onclick="sendPrompt('یه بخش جدید برای مانیتورینگ ترافیک بساز')">⚡ ساخت کارت جدید</span>
-    </div>
-
     <div class="copilot-input-box">
-      <textarea id="prompt-input" placeholder="دستور یا پرامپت خود را بنویسید (مثلاً: تم رو سبز کن، نام من رو تغییر بده، کارت جدید بساز)..."></textarea>
-      <button class="btn btn-primary" style="justify-content:center" onclick="dispatchCopilot()">Execute Prompt ⚡</button>
+      <textarea id="prompt-input" placeholder="دستور یا پرامپت تولید تصویر/صدا..."></textarea>
+      <div class="input-actions">
+        <button class="btn btn-primary" style="flex:1" onclick="dispatchCopilot()">Execute ⚡</button>
+        <button class="btn" id="mic-btn" onclick="toggleMicInput()">🎙 Speak</button>
+      </div>
     </div>
   </aside>
 </div>
 
 <script>
-// --- CORE STATE ---
-let state = {
-  theme: 'cyan',
-  user: { name: 'STUDENT', role: 'DIGITAL NETWORK ARCHITECT' },
-  projects: [
-    { id: 1, name: 'Spatial Mesh Engine', layer: 'Core OS', status: 'ACTIVE' },
-    { id: 2, name: 'Cybernetic Spider Lattice', layer: 'Neural HUD', status: 'STABLE' }
-  ],
-  licenses: [
-    { id: 'SEC-01', title: 'Zero-Copy Enclave', locked: true },
-    { id: 'SEC-02', title: 'Direct Memory Bus (DMA)', locked: true },
-    { id: 'SEC-03', title: '3-Node Predictive Neural Co-Proc', locked: false }
-  ]
-};
+// --- SPEECH & VOICE SYNTHESIS ---
+let voiceFeedback = true;
+
+function speak(text) {
+  if (!voiceFeedback || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.pitch = 0.9;
+  utterance.rate = 1.0;
+  window.speechSynthesis.speak(utterance);
+}
+
+function toggleVoiceSpeech() {
+  voiceFeedback = !voiceFeedback;
+  document.getElementById('voice-toggle-btn').textContent = voiceFeedback ? '🔊 Voice Feedback: ON' : '🔇 Voice Feedback: OFF';
+}
+
+// --- SPEECH RECOGNITION (MIC) ---
+let recognition;
+let isRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRec();
+  recognition.continuous = false;
+  recognition.lang = 'fa-IR'; // Supports Persian and English
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById('prompt-input').value = transcript;
+    dispatchCopilot();
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('mic-btn').textContent = '🎙 Speak';
+    document.getElementById('mic-btn').style.borderColor = 'var(--line)';
+  };
+}
+
+function toggleMicInput() {
+  if (!recognition) return alert('مرورگر شما از ورودی صوتی پشتیبانی نمی‌کند.');
+  if (isRecording) {
+    recognition.stop();
+  } else {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('mic-btn').textContent = '🔴 Listening...';
+    document.getElementById('mic-btn').style.borderColor = 'var(--danger)';
+  }
+}
 
 // --- NAVIGATION ---
-const navBtns = document.querySelectorAll('.nav button');
-const panels = document.querySelectorAll('.panel');
-const crumb = document.getElementById('crumb');
-
-navBtns.forEach(btn => {
-  btn.onclick = () => switchTab(btn.dataset.panel);
-});
-
-function switchTab(tabId) {
-  navBtns.forEach(b => b.classList.toggle('active', b.dataset.panel === tabId));
-  panels.forEach(p => p.classList.toggle('active', p.id === tabId));
-  const active = document.querySelector(`.nav button[data-panel="${tabId}"]`);
-  if (active) crumb.textContent = active.textContent.replace(/^[^\w]+/,'').trim();
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === id));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
 }
 
-// --- RENDER PIPELINE ---
-function renderProjects() {
-  const container = document.getElementById('project-list');
-  container.innerHTML = '';
-  state.projects.forEach(p => {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    row.innerHTML = `
-      <div>
-        <b>${p.name}</b><br>
-        <small style="color:var(--muted)">Layer: ${p.layer} · Status: <span style="color:var(--green)">${p.status}</span></small>
-      </div>
-      <button class="btn btn-danger" onclick="removeProject(${p.id})">Remove</button>
-    `;
-    container.appendChild(row);
-  });
-  document.getElementById('metric-projects').textContent = state.projects.length;
-}
-
-function removeProject(id) {
-  state.projects = state.projects.filter(p => p.id !== id);
-  renderProjects();
-}
-
-function renderLicenses() {
-  const container = document.getElementById('licenses-list');
-  container.innerHTML = '';
-  state.licenses.forEach(lic => {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    row.innerHTML = `
-      <div>
-        <b>${lic.id} — ${lic.title}</b><br>
-        <small style="color:${lic.locked ? 'var(--green)' : 'var(--danger)'}">${lic.locked ? 'LOCKED & ENCRYPTED' : 'UNLOCKED / BYPASS'}</small>
-      </div>
-      <button class="btn ${lic.locked ? '' : 'btn-primary'}" onclick="toggleLic('${lic.id}')">
-        ${lic.locked ? 'Unlock' : 'Lock Enclave'}
-      </button>
-    `;
-    container.appendChild(row);
-  });
-  document.getElementById('metric-licenses').textContent = state.licenses.filter(l => l.locked).length;
-}
-
-function toggleLic(id) {
-  const item = state.licenses.find(l => l.id === id);
-  if(item) item.locked = !item.locked;
-  renderLicenses();
-}
-
-function pickNode(name, ping, ip) {
-  document.getElementById('node-name').textContent = name;
-  document.getElementById('node-ping').textContent = ping;
-  document.getElementById('node-ip').textContent = ip;
-}
-
-// --- AI AUTONOMOUS COPILOT & DOM MODIFIER ---
-const promptInput = document.getElementById('prompt-input');
+// --- COPILOT & MULTIMODAL DISPATCHER ---
 const chatStream = document.getElementById('chat-stream');
+const promptInput = document.getElementById('prompt-input');
 
 promptInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -493,145 +285,71 @@ promptInput.addEventListener('keydown', e => {
   }
 });
 
-function sendPrompt(text) {
-  promptInput.value = text;
-  dispatchCopilot();
-}
-
-function addMessage(sender, text, codeMeta = null) {
+function addChatMsg(sender, html) {
   const div = document.createElement('div');
   div.className = `msg ${sender}`;
-  div.innerHTML = text;
-  if(codeMeta) {
-    const metaSpan = document.createElement('span');
-    metaSpan.className = 'msg-code';
-    metaSpan.textContent = `[DOM ACTION]: ${codeMeta}`;
-    div.appendChild(metaSpan);
-  }
+  div.innerHTML = html;
   chatStream.appendChild(div);
   chatStream.scrollTop = chatStream.scrollHeight;
 }
 
-// Core Natural Language Parser & Action Dispatcher
-function dispatchCopilot() {
-  const query = promptInput.value.trim();
-  if(!query) return;
+let generatedCount = 0;
 
-  addMessage('user', query);
+function dispatchCopilot() {
+  const q = promptInput.value.trim();
+  if (!q) return;
+
+  addChatMsg('user', q);
   promptInput.value = '';
 
-  // Process Intent
-  setTimeout(() => {
-    executeAgentIntent(query);
-  }, 250);
-}
+  const lower = q.toLowerCase();
 
-function executeAgentIntent(raw) {
-  const q = raw.toLowerCase();
-  let responseText = "";
-  let actionLog = "";
+  // 1. IMAGE GENERATION INTENT
+  if (lower.includes('تصویر') || lower.includes('عکس') || lower.includes('image') || lower.includes('draw') || lower.includes('generate')) {
+    const cleanPrompt = q.replace(/(تصویر|عکس|بساز|خلق کن|تولید کن|یک|image of|generate|draw)/gi, '').trim() || 'futuristic cybernetic core';
+    const seed = Math.floor(Math.random() * 999999);
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=600&height=400&seed=${seed}&nologo=true`;
 
-  // 1. THEME CONTROL
-  if (q.includes('purple') || q.includes('بنفش')) {
-    document.documentElement.style.setProperty('--cyan', '#c77dff');
-    document.documentElement.style.setProperty('--line', 'rgba(199, 125, 255, 0.3)');
-    document.getElementById('metric-theme').textContent = 'PURPLE NEON';
-    responseText = "طیف نوری سیستم به رنگ بنفش نئونی (Ultra-Violet) تغییر یافت.";
-    actionLog = "CSS var(--cyan) => #c77dff";
+    addChatMsg('ai', `در حال خلق تصویر برای پرامپت: <b>"${cleanPrompt}"</b>...`);
+    speak("در حال تولید تصویر هوشمند...");
+
+    const img = new Image();
+    img.src = imgUrl;
+    img.onload = () => {
+      addChatMsg('ai', `<div>تصویر با موفقیت تولید شد:</div><img class="msg-img" src="${imgUrl}"><br><a href="${imgUrl}" target="_blank" class="btn" style="margin-top:6px">دانلود تصویر با کیفیت اصلی</a>`);
+      
+      // Add to Gallery
+      const gallery = document.getElementById('image-container');
+      const card = document.createElement('div');
+      card.className = 'gen-card';
+      card.innerHTML = `<img src="${imgUrl}"><div class="gen-card-body"><b>${cleanPrompt}</b></div>`;
+      gallery.prepend(card);
+      
+      generatedCount++;
+      document.getElementById('asset-count').textContent = generatedCount;
+      speak("تصویر جدید در گالری ذخیره شد.");
+    };
   }
-  else if (q.includes('green') || q.includes('سبز')) {
+
+  // 2. THEME MODULATION
+  else if (lower.includes('بنفش') || lower.includes('purple')) {
+    document.documentElement.style.setProperty('--cyan', '#b5179e');
+    addChatMsg('ai', 'طیف نوری سیستم به حالت بنفش سایبرنتیک تغییر کرد.');
+    speak("تم بنفش فعال شد.");
+  }
+  else if (lower.includes('سبز') || lower.includes('green')) {
     document.documentElement.style.setProperty('--cyan', '#00ffa3');
-    document.documentElement.style.setProperty('--line', 'rgba(0, 255, 163, 0.3)');
-    document.getElementById('metric-theme').textContent = 'EMERALD MESH';
-    responseText = "تم پایگاه به طیف سبز سایبرنتیک ارتقا یافت.";
-    actionLog = "CSS var(--cyan) => #00ffa3";
-  }
-  else if (q.includes('red') || q.includes('قرمز')) {
-    document.documentElement.style.setProperty('--cyan', '#ff3366');
-    document.documentElement.style.setProperty('--line', 'rgba(255, 51, 102, 0.3)');
-    document.getElementById('metric-theme').textContent = 'CRIMSON RED';
-    responseText = "حالت وضعیت اضطراری / تم قرمز فعال شد.";
-    actionLog = "CSS var(--cyan) => #ff3366";
+    addChatMsg('ai', 'تم سبز نئونی فعال گردید.');
+    speak("تم سبز نئونی فعال شد.");
   }
 
-  // 2. CREATE PROJECT
-  else if (q.includes('پروژه') || q.includes('project')) {
-    let extractedName = raw.replace(/(پروژه|جدید|به نام|اضافه کن|add|project|create)/gi, '').trim();
-    if(!extractedName) extractedName = 'Spatial Node #' + Math.floor(Math.random()*1000);
-    state.projects.push({
-      id: Date.now(),
-      name: extractedName,
-      layer: 'Autonomous Injected',
-      status: 'COMPILED'
-    });
-    renderProjects();
-    switchTab('projects');
-    responseText = `پروژه جدید تحت عنوان <b>"${extractedName}"</b> ساخته شد و در پایپ‌لاین ثبت گردید.`;
-    actionLog = `state.projects.push({ name: "${extractedName}" })`;
-  }
-
-  // 3. NAVIGATION CONTROL
-  else if (q.includes('کامپاس') || q.includes('قطب‌نما') || q.includes('compass')) {
-    switchTab('compass');
-    responseText = "صفحه به ماژول Compass-Alpha منتقل شد.";
-    actionLog = "switchTab('compass')";
-  }
-  else if (q.includes('سخت‌افزار') || q.includes('hardware') || q.includes('لایسنس')) {
-    switchTab('hardware');
-    responseText = "کنترلر Zero-Copy Hardware Enclave باز شد.";
-    actionLog = "switchTab('hardware')";
-  }
-  else if (q.includes('پروفایل') || q.includes('profile') || q.includes('هویت')) {
-    switchTab('profile');
-    responseText = "مشخصات هویتی و مدرک DID Sovereign باز شد.";
-    actionLog = "switchTab('profile')";
-  }
-
-  // 4. USER IDENTITY MODIFICATION
-  else if (q.includes('اسم') || q.includes('نام') || q.includes('name')) {
-    const parts = raw.split(/(?:به|به نام|is|to)/);
-    const newName = parts.length > 1 ? parts[1].replace(/تغییر بده|کن/g, '').trim() : 'CHIEF_ARCHITECT';
-    state.user.name = newName;
-    document.getElementById('user-display').textContent = newName;
-    document.getElementById('prof-name').textContent = newName;
-    document.getElementById('avatar-badge').textContent = newName.substring(0, 2).toUpperCase();
-    responseText = `هویت سیستم با موفقیت به نام <b>"${newName}"</b> بروزرسانی شد.`;
-    actionLog = `state.user.name = "${newName}"`;
-  }
-
-  // 5. INJECT DYNAMIC CARD / MODULE
-  else if (q.includes('کارت') || q.includes('ماژول') || q.includes('بخش') || q.includes('card')) {
-    const injectionArea = document.getElementById('dynamic-injections');
-    const dynamicCard = document.createElement('div');
-    dynamicCard.className = 'card';
-    dynamicCard.style.border = '1px solid var(--cyan)';
-    dynamicCard.innerHTML = `
-      <div class="kicker">INJECTED COPILOT MODULE</div>
-      <h3 style="color:var(--cyan);margin:4px 0">Telemetry Stream & Packet Analyzer</h3>
-      <p style="color:var(--muted);font-size:12px">این ماژول به صورت درجا و زنده توسط پرامپت شما در DOM تولید و تزریق شد.</p>
-      <div class="item-row" style="margin-top:10px">
-        <span>Packet Integrity:</span><b style="color:var(--green)">100% OK</b>
-      </div>
-      <button class="btn btn-danger" style="margin-top:6px" onclick="this.parentElement.remove()">Dismiss Module</button>
-    `;
-    injectionArea.prepend(dynamicCard);
-    switchTab('overview');
-    responseText = "ماژول جدید به صورت زنده در داشبورد تعبیه (Inject) شد.";
-    actionLog = "DOM.appendChild(<NewDynamicCard />)";
-  }
-
-  // 6. GENERAL / FALLBACK
+  // 3. FALLBACK GENERAL
   else {
-    responseText = `دستور دریافت شد: "${raw}". برای تست می‌توانید بگویید: "رنگ رو سبز کن"، "پروژه جدید JetSki بساز"، یا "کارت جدید بساز".`;
-    actionLog = "NLP.evaluateContext()";
+    const res = `دستور "${q}" تحلیل شد و هسته با موفقیت همگام گردید.`;
+    addChatMsg('ai', res);
+    speak(res);
   }
-
-  addMessage('ai', responseText, actionLog);
 }
-
-// --- INIT ---
-renderProjects();
-renderLicenses();
 </script>
 </body>
 </html>
