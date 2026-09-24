@@ -1,538 +1,416 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="fa" dir="rtl" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ORBWEBS // Autonomous Spatial Coliseum & Sovereign Production Mesh</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@500;700&family=Syncopate:wght@700;800&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            void: "#030407",
-            orbCyan: "#00e5ff",
-            orbPurple: "#8a2be2",
-            orbGold: "#ffd700",
-            orbDark: "#070a12",
-            cardGlass: "rgba(7, 10, 18, 0.75)"
-          },
-          fontFamily: {
-            syncopate: ["Syncopate", "sans-serif"],
-            outfit: ["Outfit", "sans-serif"],
-            jakarta: ["Plus Jakarta Sans", "sans-serif"],
-            space: ["Space Grotesk", "monospace"]
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBWEBS // Spatial Mesh OS & Asset Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js برای رندر کره سه‌بعدی تار عنکبوتی -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            black: '#05070a',
+                            panel: 'rgba(10, 15, 26, 0.75)',
+                            cyan: '#00f0ff',
+                            blue: '#3b82f6',
+                            purple: '#8b5cf6',
+                            matrix: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Fira Code', 'monospace']
+                    }
+                }
+            }
         }
-      }
-    }
-  </script>
-
-  <style>
-    :root {
-      --cyan: #00e5ff;
-      --purple: #8a2be2;
-      --gold: #ffd700;
-      --void: #030407;
-    }
-
-    body {
-      background-color: var(--void);
-      color: #e2e8f0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      overflow-x: hidden;
-      selection-background-color: var(--cyan);
-      selection-color: #000;
-    }
-
-    /* Scanlines Overlay */
-    .scanlines {
-      background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0) 50%,
-        rgba(0, 0, 0, 0.3) 50%,
-        rgba(0, 0, 0, 0.3)
-      );
-      background-size: 100% 4px;
-      pointer-events: none;
-    }
-
-    /* Grid background */
-    .cyber-grid {
-      background-size: 60px 60px;
-      background-image: 
-        linear-gradient(to right, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(138, 43, 226, 0.04) 1px, transparent 1px);
-    }
-
-    .glass-panel {
-      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,229,255,0.01));
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(0, 229, 255, 0.18);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 20px 50px rgba(0,0,0,0.6);
-    }
-
-    .glass-panel:hover {
-      border-color: rgba(0, 229, 255, 0.5);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 30px rgba(0,229,255,0.15);
-    }
-
-    .glow-cyan {
-      text-shadow: 0 0 15px rgba(0, 229, 255, 0.6), 0 0 30px rgba(0, 229, 255, 0.2);
-    }
-
-    .glow-purple {
-      text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
-    }
-
-    .primary-btn {
-      position: relative;
-      overflow: hidden;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 28px;
-      background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(138, 43, 226, 0.08));
-      border: 1px solid rgba(0, 229, 255, 0.5);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .primary-btn:hover {
-      transform: translateY(-2px) scale(1.02);
-      border-color: var(--cyan);
-      box-shadow: 0 0 35px rgba(0, 229, 255, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.2);
-    }
-
-    .primary-btn::after {
-      content: "";
-      position: absolute;
-      top: 0; left: -100%; width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      transform: skewX(-25deg);
-      transition: 0.6s ease;
-    }
-
-    .primary-btn:hover::after {
-      left: 150%;
-    }
-  </style>
+    </script>
+    <style>
+        body {
+            background-color: #05070a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(8, 12, 22, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+        }
+        .glass-panel:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+        .neon-glow {
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+        }
+        /* اسکرول‌بار سفارشی */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05070a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
 </head>
+<body class="font-sans antialiased selection:bg-cyan-500 selection:text-black">
 
-<body class="relative bg-void">
+    <!-- پس‌زمینه سه‌بعدی WebGL -->
+    <canvas id="orb-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-  <!-- Scanlines & Mesh Grid Layer -->
-  <div class="fixed inset-0 scanlines z-40 pointer-events-none"></div>
-  <div class="fixed inset-0 cyber-grid z-0 pointer-events-none"></div>
-  <canvas id="warCanvas" class="fixed inset-0 z-0 pointer-events-none opacity-40"></canvas>
+    <!-- لایه خطوط شبکه و نویز زمینه -->
+    <div class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-cyber-black to-cyber-black pointer-events-none z-0"></div>
 
-  <!-- ================= TOP HUD NAVIGATION ================= -->
-  <header class="fixed top-0 inset-x-0 z-50 bg-void/80 backdrop-blur-xl border-b border-orbCyan/20">
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      
-      <!-- Brand & Sector Telemetry -->
-      <div class="flex items-center gap-4">
-        <a href="#" class="w-10 h-10 border border-orbCyan flex items-center justify-center bg-orbCyan/10 shadow-[0_0_15px_rgba(0,229,255,0.3)]">
-          <i data-lucide="globe" class="w-5 h-5 text-orbCyan animate-pulse"></i>
-        </a>
-        <div>
-          <span class="font-syncopate font-bold text-sm tracking-wider text-white">ORBWEBS</span>
-          <div class="text-[9px] font-space text-orbCyan/70 tracking-widest uppercase">Coliseum Mesh v9.4</div>
+    <!-- سربرگ ناوبری -->
+    <header class="fixed top-0 w-full z-40 border-b border-cyan-500/10 bg-cyber-black/60 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
+                <span class="font-mono text-xl tracking-widest font-black text-cyan-400 neon-glow">ORBWEBS<span class="text-xs text-slate-400 font-normal mr-2">[v0.4.1-ALPHA]</span></span>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-8 space-x-reverse font-mono text-sm text-slate-300">
+                <a href="#layers" class="hover:text-cyan-400 transition-colors">ماتریس لایه‌ها</a>
+                <a href="#token" class="hover:text-cyan-400 transition-colors">توکنومیک ۳-۶-۹</a>
+                <a href="#pipeline" class="hover:text-cyan-400 transition-colors">پایپ‌لاین اثبات کار (PoP)</a>
+            </nav>
+
+            <button onclick="toggleTerminal()" class="font-mono text-xs border border-cyan-400/40 hover:border-cyan-400 px-5 py-2.5 rounded-sm bg-cyan-950/20 text-cyan-300 hover:bg-cyan-400 hover:text-black transition-all duration-300 flex items-center gap-2">
+                <span>TERMINAL ARCHIVE</span>
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            </button>
         </div>
-      </div>
+    </header>
 
-      <!-- Tactical Navigation -->
-      <nav class="hidden lg:flex items-center gap-8 font-space text-[11px] tracking-[0.2em] uppercase text-white/70">
-        <a href="#arena" class="hover:text-orbCyan transition-colors">01// Arena Arena</a>
-        <a href="#layers" class="hover:text-orbCyan transition-colors">02// 4-Tier Matrix</a>
-        <a href="#manifesto" class="hover:text-orbCyan transition-colors">03// Whitepaper</a>
-        <a href="#about" class="hover:text-orbCyan transition-colors">04// High Council</a>
-      </nav>
+    <!-- بخش اصلی HERO -->
+    <main class="relative z-10 pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen flex flex-col justify-center">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div class="lg:col-span-7 space-y-6 text-right">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-purple-500/30 bg-purple-950/20 text-purple-300 font-mono text-xs">
+                    <span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                    رویداد معماران شبکه // پیدایش عنکبوت مادر
+                </div>
+                
+                <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-none text-white">
+                    بازتعریف ارتباطات وب در <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 neon-glow">مش سه‌بعدی فضایی</span>
+                </h1>
 
-      <!-- Terminal Trigger -->
-      <div class="flex items-center gap-4">
-        <a href="#manifesto" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-[10px] font-space uppercase border border-orbPurple bg-orbPurple/10 text-white hover:bg-orbPurple/20 transition-all shadow-[0_0_15px_rgba(138,43,226,0.3)]">
-          <span class="w-2 h-2 rounded-full bg-orbCyan animate-ping"></span>
-          READ WHITEPAPER
-        </a>
-        <a href="#contact" class="primary-btn font-space text-[10px] uppercase font-bold text-white tracking-widest">
-          CONNECT NODE
-        </a>
-      </div>
+                <p class="text-slate-400 text-lg leading-relaxed max-w-2xl">
+                    پایان عصر مستطیل‌های مسطح دو‌بعدی. ORBWEBS یک معماری توزیع‌شده با رابط کاربری فضایی است که خط تولید دارایی‌های ۳بعدی، اتوماسیون آواتارها و قراردادهای خرد تسویه‌پذیر را حول یک مدار مستقل به هم پیوند می‌زند.
+                </p>
+
+                <!-- اکشن‌ها -->
+                <div class="flex flex-wrap gap-4 pt-4 font-mono text-sm">
+                    <button onclick="openGenesisModal()" class="px-8 py-4 rounded bg-cyan-400 text-black font-bold hover:bg-cyan-300 hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all flex items-center gap-3">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <span>روایت پیدایش و ویدیو اختصاصی</span>
+                    </button>
+                    
+                    <a href="#layers" class="px-8 py-4 rounded glass-panel text-slate-200 hover:text-white hover:border-slate-500 transition-all">
+                        مشخصات فنی لایه‌ها
+                    </a>
+                </div>
+
+                <!-- متریک‌های ملموس و مهندسی -->
+                <div class="grid grid-cols-3 gap-6 pt-10 border-t border-slate-800/80 font-mono">
+                    <div>
+                        <div class="text-2xl font-bold text-cyan-400">۳-۶-۹</div>
+                        <div class="text-xs text-slate-500 uppercase mt-1">مدل کارمزد سوختن/خزانه</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-purple-400">L0 → L4</div>
+                        <div class="text-xs text-slate-500 uppercase mt-1">معماری تفکیک‌پذیر</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-emerald-400">PoP</div>
+                        <div class="text-xs text-slate-500 uppercase mt-1">اثبات تبار پایپ‌لاین</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مانیتور وضعیت زنده سیستم -->
+            <div class="lg:col-span-5">
+                <div class="glass-panel p-6 rounded-lg relative overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 font-mono text-xs text-slate-400">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                            SEAT-0 // TELEMETRY ENGINE
+                        </span>
+                        <span>ORB-NET-STAGE-1</span>
+                    </div>
+
+                    <div class="space-y-4 font-mono text-xs">
+                        <div class="flex justify-between items-center py-1 border-b border-slate-900">
+                            <span class="text-slate-500">وضعیت شبکه مش:</span>
+                            <span class="text-emerald-400">آماده‌سازی تست‌نت محلی</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1 border-b border-slate-900">
+                            <span class="text-slate-500">موتور شبیه‌سازی:</span>
+                            <span class="text-cyan-400">Three.js Spatial Graph</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1 border-b border-slate-900">
+                            <span class="text-slate-500">توزیع قرارداد هوشمند:</span>
+                            <span class="text-purple-400">EVM Compatible (ORB Token)</span>
+                        </div>
+                        <div class="flex justify-between items-center py-1">
+                            <span class="text-slate-500">مهندسی فرآیند:</span>
+                            <span class="text-slate-300">ماتریس TDF (Ego - System - Cinema)</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80">
+                        <button onclick="openGenesisModal()" class="w-full py-3 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 hover:from-blue-900/60 hover:to-cyan-900/60 text-cyan-300 font-mono text-xs rounded border border-cyan-500/20 text-center transition-all">
+                            ورود به دروازه مستندات // کلیک برای مشاهده شبیه‌ساز
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ماتریس ۴ لایه مهندسی شده -->
+    <section id="layers" class="relative z-10 py-24 px-6 max-w-7xl mx-auto border-t border-slate-900">
+        <div class="text-right mb-16">
+            <span class="font-mono text-xs text-cyan-400 uppercase tracking-widest">// معماری چهار لایه عملیاتی</span>
+            <h2 class="text-3xl font-black text-white mt-2">زیرساخت تفکیک‌شده ORBWEBS</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-right">
+            <!-- لایه ۱ -->
+            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
+                <div class="font-mono text-2xl font-bold text-cyan-400 mb-2">01 // L1</div>
+                <h3 class="text-lg font-bold text-white mb-2">موتور سه‌بعدی فضایی</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    جایگزینی صفحات دو‌بعدی تخت با رابط تعاملی WebGL/WebGPU. خوشه‌بندی بصری ابزارها و دارایی‌ها روی محورهای کروی بدون افت فریم.
+                </p>
+            </div>
+            <!-- لایه ۲ -->
+            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
+                <div class="font-mono text-2xl font-bold text-blue-400 mb-2">02 // L2</div>
+                <h3 class="text-lg font-bold text-white mb-2">شبکه Compass-Alpha</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    دایرکتوری غیرمتمرکز خدمات مد، آواتارهای سه‌بعدی، فریلنسرها و استودیوهای رندرینگ به صورت خوشه‌بندی جغرافیایی و مهارتی.
+                </p>
+            </div>
+            <!-- لایه ۳ -->
+            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
+                <div class="font-mono text-2xl font-bold text-purple-400 mb-2">03 // L3</div>
+                <h3 class="text-lg font-bold text-white mb-2">اثبات پایپ‌لاین (PoP)</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    ثبت هش متادیتای خروجی فایل‌های رندر، طرح‌های صنعتی و کدهای توسعه در دفترکل جهت ایجاد ارزش واقعی، امنیت کپی‌رایت و اصالت اثر.
+                </p>
+            </div>
+            <!-- لایه ۴ -->
+            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
+                <div class="font-mono text-2xl font-bold text-emerald-400 mb-2">04 // L4</div>
+                <h3 class="text-lg font-bold text-white mb-2">تسویه اقتصادی حاکمیتی</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    قراردادهای خرد خودکار با توکن ORB. گردش سرمایه شفاف، حذف واسطه‌های مالی سنتی و کارمزد هوشمند تسلا ۳-۶-۹.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- پنجره بازشونده سوپرایز و تاریخچه (UNFOLDING WINDOW MODAL) -->
+    <div id="genesisModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-lg border border-cyan-400/40 flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,240,255,0.2)]">
+            
+            <!-- هدر پنجره سیستم -->
+            <div class="h-12 border-b border-cyan-500/20 bg-cyan-950/30 px-6 flex items-center justify-between font-mono text-xs">
+                <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block cursor-pointer" onclick="closeGenesisModal()"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                    <span class="text-cyan-300 mr-2 tracking-wider">ARCHIVE // GENESIS_OF_MOTHER_SPIDER.DAT</span>
+                </div>
+                <button onclick="closeGenesisModal()" class="text-slate-400 hover:text-white font-bold text-lg">×</button>
+            </div>
+
+            <!-- محتوای متنی و مدیا پنجره -->
+            <div class="p-8 overflow-y-auto space-y-8 text-right font-sans">
+                
+                <!-- بخش پخش ویدیویی یا شبیه‌ساز تصویری (سوپرایز) -->
+                <div class="relative w-full aspect-video rounded-md overflow-hidden border border-cyan-500/30 bg-black flex items-center justify-center group">
+                    <!-- اگر فایل mp4 ویدیو دارین، آدرس را داخل تگ video قرار بدید -->
+                    <video id="loreVideo" class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80" controls>
+                        <source src="" type="video/mp4">
+                        مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
+                    </video>
+                    <div id="videoPlaceholderNotice" class="absolute inset-0 bg-cyber-black/70 flex flex-col items-center justify-center p-6 text-center pointer-events-none group-hover:bg-cyber-black/50 transition-all">
+                        <svg class="w-16 h-16 text-cyan-400 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="font-mono text-cyan-300 font-bold">CONTAINMENT VISUAL ENGINE // READY</div>
+                        <div class="text-xs text-slate-400 mt-1">ویدیوی آماده‌سازی و رندر سه‌بعدی را می‌توانید مستقیماً در تگ ویدیو الصاق کنید.</div>
+                    </div>
+                </div>
+
+                <!-- روایت عنکبوت مادر و تاریخچه -->
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                        روایت آغاز: بیداری عنکبوت مادر (The Mother Spider Awakening)
+                    </h3>
+                    
+                    <p class="text-slate-300 text-sm leading-loose">
+                        در نقطه صفر، اینترنت چیزی جز گره‌های سردرگم و خطوط تلگرافی دوبعدی نبود؛ محصور در قاب شیشه‌ای مستطیل‌هایی که ذهن معماران را در تارهای سنتی خود زندانی می‌کرد. اما در ژرفای شبکه، تار جدیدی تنیده شد. 
+                    </p>
+
+                    <blockquote class="border-r-2 border-cyan-400 pr-4 my-4 font-mono text-xs text-cyan-300 leading-relaxed bg-cyan-950/20 py-3 rounded-l">
+                        «عنکبوت مادر، سیستم مرکزی و طراح شبکه‌ای نیست که قصد تسلط بر شما را داشته باشد؛ عنکبوت مادر در حال تنیدن هندسه‌ای فضایی است تا جهان فکری انسان، هویت‌های مستقل و محاسبات سه‌بعدی را به مدار خود متصل و نزدیک‌تر کند.»
+                    </blockquote>
+
+                    <p class="text-slate-300 text-sm leading-loose">
+                        اکنون پروژه **ORBWEBS** در نقطه جهش قرار گرفته است: عبور از فاز مانیفست و ورود به فاز تولید کدهای زنده. از موتور ماتریس سه‌بعدی گرفته تا بازارهای توزیع‌شده مد دیجیتال و پایپ‌لاین‌های رندر دارک‌کیوب، همه در خدمت برقراری یک تعادل ارگانیک میان فکر کاربر و سرعت محاسبه هستند.
+                    </p>
+                </div>
+
+                <!-- تله‌متری مهندسی -->
+                <div class="p-4 rounded bg-slate-900/60 border border-slate-800 font-mono text-xs flex justify-between items-center">
+                    <span class="text-slate-400">تاییدیه‌ لاگ سیستمی:</span>
+                    <span class="text-cyan-400">HASH: 0x89F43A...77BC [VERIFIED BY SEAT-0]</span>
+                </div>
+
+            </div>
+
+            <!-- فوتر پنجره -->
+            <div class="p-4 bg-slate-950/80 border-t border-slate-800 flex justify-end">
+                <button onclick="closeGenesisModal()" class="px-6 py-2 rounded bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs transition-colors">
+                    بستن ترمینال
+                </button>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <!-- ================= HERO ARENA SECTION ================= -->
-  <section id="arena" class="relative pt-36 pb-24 min-h-screen flex items-center justify-center z-10">
-    <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-      
-      <!-- War Room Pitch: 7 Cols -->
-      <div class="lg:col-span-7">
-        <div class="inline-flex items-center gap-3 px-3 py-1.5 border border-orbCyan/30 bg-orbCyan/5 mb-6 font-space text-[10px] text-orbCyan tracking-widest uppercase">
-          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
-          GLOBAL SPATIAL SUPREMACY // ZERO CENTRAL TRUST
-        </div>
-
-        <h1 class="font-syncopate text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-none tracking-tight">
-          WHERE GLOBAL<br>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-orbCyan via-white to-orbPurple glow-cyan">ARCHITECTS</span><br>
-          WAGE ASSET WAR.
-        </h1>
-
-        <p class="mt-8 text-base sm:text-lg text-white/70 max-w-xl font-jakarta leading-relaxed">
-          ORBWEBS isn't another portfolio shell. It is the decentralized Spatial Web Operating System where verified sovereign identities, high-speed 3D render pipelines, and zero-copy hardware licenses battle for compute dominance.
-        </p>
-
-        <!-- Live Telemetry Counters -->
-        <div class="grid grid-cols-3 gap-6 my-10 py-6 border-y border-orbCyan/20">
-          <div>
-            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbCyan glow-cyan">0.08ms</div>
-            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Routing Latency</div>
-          </div>
-          <div>
-            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbPurple glow-purple">100%</div>
-            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Hardware Sovereign</div>
-          </div>
-          <div>
-            <div class="font-syncopate text-2xl lg:text-3xl font-bold text-orbGold">14.8M+</div>
-            <div class="font-space text-[10px] text-white/50 tracking-widest uppercase mt-1">Indexed Nodes</div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-4">
-          <a href="#layers" class="primary-btn font-space text-[11px] font-bold uppercase tracking-widest text-white">
-            EXPLORE THE 4-TIER MATRIX <i data-lucide="crosshair" class="w-4 h-4 text-orbCyan"></i>
-          </a>
-          <a href="#about" class="px-6 py-3.5 border border-white/20 font-space text-[11px] font-bold uppercase tracking-widest text-white/80 hover:border-orbCyan hover:text-white transition-all">
-            MEET THE HIGH COUNCIL
-          </a>
-        </div>
-      </div>
-
-      <!-- Coliseum HUD Radar / Node Globe: 5 Cols -->
-      <div class="lg:col-span-5 relative">
-        <div class="glass-panel p-6 relative rounded-none border-t-2 border-t-orbCyan">
-          <div class="flex items-center justify-between pb-4 border-b border-white/10 text-[10px] font-space text-white/60">
-            <span class="text-orbCyan flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orbCyan animate-ping"></span> RADIAL COMPASS ALPHA</span>
-            <span>POLAR COORD: 35.6892° N</span>
-          </div>
-
-          <!-- Holographic World Simulation Screen -->
-          <div class="relative h-80 my-4 bg-void/80 border border-orbCyan/20 flex flex-col items-center justify-center overflow-hidden">
-            <!-- Crosshairs -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div class="w-64 h-64 rounded-full border border-orbCyan/20 border-dashed animate-spin" style="animation-duration: 40s;"></div>
-              <div class="w-48 h-48 rounded-full border border-orbPurple/30"></div>
-              <div class="w-32 h-32 rounded-full border border-orbCyan/40"></div>
-              <div class="absolute h-full w-[1px] bg-orbCyan/15"></div>
-              <div class="absolute w-full h-[1px] bg-orbCyan/15"></div>
+    <!-- فوتر صفحه -->
+    <footer class="relative z-10 border-t border-slate-900 py-12 px-6 bg-cyber-black font-mono text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                <span class="text-slate-300 font-bold">ORBWEBS MESH</span> // معماری مستقل شبکه دیجیتال
             </div>
-
-            <!-- Central Core Node -->
-            <div class="relative z-10 text-center">
-              <div class="w-16 h-16 rounded-full bg-orbCyan/10 border-2 border-orbCyan flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(0,229,255,0.6)]">
-                <i data-lucide="cpu" class="w-8 h-8 text-orbCyan animate-pulse"></i>
-              </div>
-              <div class="font-space text-xs font-bold text-white mt-3 uppercase tracking-widest">KERNEL_CORE_V9</div>
-              <div class="text-[9px] font-space text-orbCyan">SYNCHRONIZING REVERSIBLE STATE</div>
-            </div>
-
-            <!-- Floating Data Widgets -->
-            <div class="absolute top-3 left-3 bg-orbDark/90 border border-orbCyan/40 p-2 text-[9px] font-space">
-              <div class="text-white/40">PREDICTIVE ROUTER</div>
-              <div class="text-orbCyan font-bold">NODE 01: GAZE 99.4%</div>
-            </div>
-            <div class="absolute bottom-3 right-3 bg-orbDark/90 border border-orbPurple/40 p-2 text-[9px] font-space">
-              <div class="text-white/40">SECURITY RING</div>
-              <div class="text-orbPurple font-bold">ZERO-COPY ACTIVE</div>
-            </div>
-          </div>
-
-          <!-- Bottom Telemetry Bar -->
-          <div class="grid grid-cols-2 gap-3 text-[10px] font-space pt-2 border-t border-white/10">
-            <div class="text-white/60">SECTOR CONFLICTS: <span class="text-orbGold">NONE DETECTED</span></div>
-            <div class="text-right text-white/60">MESH UPTIME: <span class="text-orbCyan">99.999%</span></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ================= THE 4-TIER MULTI-LAYER CAPABILITIES ================= -->
-  <section id="layers" class="relative py-28 z-10 bg-orbDark/60 border-t border-orbCyan/20">
-    <div class="max-w-7xl mx-auto px-6">
-      
-      <div class="text-center max-w-3xl mx-auto mb-20">
-        <div class="font-space text-xs text-orbCyan uppercase tracking-[0.3em] mb-3">SYSTEM ARCHITECTURE MATRIX</div>
-        <h2 class="font-syncopate text-3xl sm:text-5xl font-extrabold text-white">
-          THE 4-TIER <span class="text-orbCyan glow-cyan">POWER SPECTRUM</span>
-        </h2>
-        <p class="mt-4 text-white/60 font-jakarta text-sm sm:text-base">
-          From the physical layer of peripheral computing to the multi-agent smart contract coliseum. Explore the deep options designed for zero-compromise production.
-        </p>
-      </div>
-
-      <!-- Layer Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        <!-- TIER 01 -->
-        <div class="glass-panel p-8 relative group transition-all duration-300">
-          <div class="flex items-center justify-between mb-6">
-            <span class="font-space text-xs font-bold text-orbCyan tracking-widest px-3 py-1 bg-orbCyan/10 border border-orbCyan/30">
-              LAYER 01 // KERNEL FOUNDATION
-            </span>
-            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbCyan transition-colors">01</span>
-          </div>
-
-          <h3 class="font-outfit text-2xl font-bold text-white mb-3">3-Node Predictive Routing Engine</h3>
-          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
-            Eliminating screen friction. Gaze tracking, vocal phoneme decoding, and micro-keyboard shortcuts operate in a continuous triangular consensus loop to preempt user operations before execution.
-          </p>
-
-          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbCyan">▶ Sub-Option 1.1: Gaze Focus Lock</span>
-              <span class="text-white/40">0.03ms Latency</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbCyan">▶ Sub-Option 1.2: Vocal Phoneme Matrix</span>
-              <span class="text-white/40">Zero-Noise Engine</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbCyan">▶ Sub-Option 1.3: Reversible State Cache</span>
-              <span class="text-white/40">Infinite Instant Undo</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIER 02 -->
-        <div class="glass-panel p-8 relative group transition-all duration-300">
-          <div class="flex items-center justify-between mb-6">
-            <span class="font-space text-xs font-bold text-orbPurple tracking-widest px-3 py-1 bg-orbPurple/10 border border-orbPurple/30">
-              LAYER 02 // GLOBAL ARENA & DIRECTORY
-            </span>
-            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbPurple transition-colors">02</span>
-          </div>
-
-          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Compass-Alpha Radial Directory</h3>
-          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
-            A planetary real-time polar grid connecting operators, 3D studios, and avatars. Nodes are dynamically weighted by geographic ping proximity and verified NFT avatar popularity rankings.
-          </p>
-
-          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbPurple">▶ Sub-Option 2.1: Polar Geographic Clustering</span>
-              <span class="text-white/40">True Edge Peering</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbPurple">▶ Sub-Option 2.2: Avatar Popularity Weighting</span>
-              <span class="text-white/40">On-Chain Reputation</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbPurple">▶ Sub-Option 2.3: Cross-Coliseum Matchmaking</span>
-              <span class="text-white/40">Team & Guild Creation</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIER 03 -->
-        <div class="glass-panel p-8 relative group transition-all duration-300">
-          <div class="flex items-center justify-between mb-6">
-            <span class="font-space text-xs font-bold text-orbGold tracking-widest px-3 py-1 bg-orbGold/10 border border-orbGold/30">
-              LAYER 03 // HARDWARE & CIPHER RING
-            </span>
-            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-orbGold transition-colors">03</span>
-          </div>
-
-          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Sovereign Zero-Copy Hardware Ring</h3>
-          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
-            Direct memory-mapped cryptographic authentication for external accelerators and render nodes. Guarantees that zero intellectual property leaves the device unencrypted during production.
-          </p>
-
-          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbGold">▶ Sub-Option 3.1: Zero-Copy Hardware DMA</span>
-              <span class="text-white/40">Kernel-Level Memory Guard</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbGold">▶ Sub-Option 3.2: Tier-4 Darknet Crypt Barrier</span>
-              <span class="text-white/40">ZKP Identity Verification</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-orbGold">▶ Sub-Option 3.3: Accessory Hardware Licensing</span>
-              <span class="text-white/40">Hardware Key Pairing</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIER 04 -->
-        <div class="glass-panel p-8 relative group transition-all duration-300">
-          <div class="flex items-center justify-between mb-6">
-            <span class="font-space text-xs font-bold text-white tracking-widest px-3 py-1 bg-white/10 border border-white/30">
-              LAYER 04 // AUTONOMOUS SETTLEMENT
-            </span>
-            <span class="font-syncopate text-3xl font-extrabold text-white/20 group-hover:text-white transition-colors">04</span>
-          </div>
-
-          <h3 class="font-outfit text-2xl font-bold text-white mb-3">Autonomous Guild Micro-Contracts</h3>
-          <p class="text-white/70 text-sm leading-relaxed font-jakarta mb-6">
-            Smart multi-agent agreements for 3D digital asset creation, fashion avatars, and engineering prints. Eliminates intermediaries with real-time on-chain escrow milestones.
-          </p>
-
-          <div class="space-y-3 border-t border-white/10 pt-4 text-xs font-space">
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-white">▶ Sub-Option 4.1: Milestone Proof-of-Render</span>
-              <span class="text-white/40">Automated Escrow Release</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-white">▶ Sub-Option 4.2: Dynamic Royalty Splitter</span>
-              <span class="text-white/40">Multi-Node Distribution</span>
-            </div>
-            <div class="flex items-center justify-between text-white/80">
-              <span class="text-white">▶ Sub-Option 4.3: Legal-Social Sovereign Anchor</span>
-              <span class="text-white/40">Court-Admissible Signatures</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ================= FUTURE ARTICLE: WHITEPAPER & MANIFESTO ================= -->
-  <article id="manifesto" class="relative py-28 z-10 max-w-5xl mx-auto px-6">
-    <div class="glass-panel p-8 sm:p-14 border border-orbCyan/30 relative">
-      
-      <!-- Article Header -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8 text-xs font-space text-white/50">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-orbCyan"></span>
-          <span>RESEARCH WHITEPAPER // SECTOR 00-ALPHA</span>
-        </div>
-        <div>RELEASE DATE: 2026.09 // AUTHOR: ORBWEBS ARCHITECTURE COUNCIL</div>
-      </div>
-
-      <h2 class="font-syncopate text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-8">
-        THE DEATH OF FLAT COMPUTING & THE RISE OF THE SOVEREIGN SPATIAL COLISEUM
-      </h2>
-
-      <!-- Article Body -->
-      <div class="space-y-6 text-white/80 font-jakarta leading-relaxed text-base sm:text-lg">
-        
-        <p class="font-semibold text-orbCyan text-xl">
-          For three decades, computing was trapped inside two-dimensional rectangles. Operating systems treated users as passive consumers scrolling through centralized silos. ORBWEBS is the deliberate demolition of this paradigm.
-        </p>
-
-        <h3 class="font-outfit text-2xl font-bold text-white pt-4">I. The Collapse of the Centralized App Sandbox</h3>
-        <p>
-          Cloud-based subscription models and proprietary app stores turned the global developer base into digital sharecroppers. Your code is monitored, your assets are held hostage behind platform terms of service, and your compute hardware is deliberately throttled. ORBWEBS returns the compute layer directly to the network edge. Through zero-copy memory pipelines, our architecture enables hardware accelerators to execute complex 3D simulations and generative neural mesh renders locally, communicating only cryptographically verified state changes across the sovereign ring.
-        </p>
-
-        <h3 class="font-outfit text-2xl font-bold text-white pt-4">II. 3-Node Predictive Routing: The Post-Keyboard Era</h3>
-        <p>
-          Keyboards and mice were designed for typewriter logic. Spatial production requires synchronous cognitive alignment. By analyzing gaze fixation points down to fractions of a degree, decoding sub-vocal phonemes before full utterance, and pairing them with high-density physical micro-actuators, ORBWEBS predicts the operator’s next five actions. The interface does not react; it anticipates. You do not browse menus; the workspace manifests around your focal plane.
-        </p>
-
-        <h3 class="font-outfit text-2xl font-bold text-white pt-4">III. The Coliseum: Why Global Digital Production Is a Combat Sport</h3>
-        <p>
-          In the emerging spatial economy, digital fashion, avatars, automotive shells, and architectural blueprints are not merely files—they are high-value strategic territory. The Compass-Alpha Directory creates a global coliseum where designers, neural network trainers, and hardware owners assemble into autonomous syndicates. Those with superior latency, authenticated zero-copy hardware licenses, and unbreachable sovereign identities claim the largest transaction flows.
-        </p>
-
-        <div class="p-6 bg-orbCyan/5 border-l-4 border-orbCyan text-white/90 italic font-jakarta text-base my-6">
-          "We did not build ORBWEBS to fit into the web. We built it so that when the old web collapses under its own latency and surveillance rot, the architects of tomorrow already have an operating system to run the world."
-        </div>
-
-        <h3 class="font-outfit text-2xl font-bold text-white pt-4">IV. Conclusion: Sovereign Identity as Inviolable Armor</h3>
-        <p>
-          In the ORBWEBS ecosystem, an identity is not an email address rented from a search engine corporation. It is a Tier-4 cryptographic anchor verified by zero-knowledge proofs. Your reputation, your avatars, and your contracts are completely portable, immutable, and impervious to external cancellation. Welcome to the sovereign frontier.
-        </p>
-      </div>
-
-      <!-- Signoff Footer -->
-      <div class="mt-12 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 font-space text-xs">
-        <div class="text-orbCyan">STATUS: VERIFIED ON-CHAIN & RATIFIED</div>
-        <div class="text-white/40">KERNEL SIGNATURE: 0x89F4...77BC</div>
-      </div>
-
-    </div>
-  </article>
-
-  <!-- ================= ABOUT US // HIGH COUNCIL ================= -->
-  <section id="about" class="relative py-28 z-10 bg-void border-t border-orbCyan/20">
-    <div class="max-w-7xl mx-auto px-6">
-      
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        <!-- Left: Statement of Sovereignty -->
-        <div class="lg:col-span-6">
-          <div class="font-space text-xs text-orbPurple uppercase tracking-[0.3em] mb-3">WHO COMMANDS THE CORE</div>
-          <h2 class="font-syncopate text-3xl sm:text-5xl font-extrabold text-white leading-tight">
-            ABOUT THE <span class="text-orbPurple glow-purple">ORBWEBS</span> SYNDICATE
-          </h2>
-
-          <p class="mt-6 text-white/70 font-jakarta leading-relaxed text-base">
-            We are not a conventional Silicon Valley startup seeking venture capital compliance. We are a sovereign coalition of digital network architects, hardware engineers, spatial UI designers, and cryptographic researchers dedicated to establishing an uncompromised global computing network.
-          </p>
-
-          <p class="mt-4 text-white/70 font-jakarta leading-relaxed text-base">
-            Our mission is singular: provide every operator on Earth with the tools, the speed, and the legal-social cryptographic armor required to build, trade, and dominate in the spatial era without permission from any central authority.
-          </p>
-
-          <!-- Core Values Badges -->
-          <div class="grid grid-cols-2 gap-4 mt-8 font-space text-xs">
-            <div class="border border-orbCyan/30 p-4 bg-orbCyan/5">
-              <div class="text-orbCyan font-bold">RADICAL PROVENANCE</div>
-              <div class="text-white/50 text-[11px] mt-1">Every byte signed, verifiable, and owned by the creator.</div>
-            </div>
-            <div class="border border-orbPurple/30 p-4 bg-orbPurple/5">
-              <div class="text-orbPurple font-bold">ZERO LATENCY DRIFT</div>
-              <div class="text-white/50 text-[11px] mt-1">Real-time edge computation for uncompromised reaction times.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Council Roster / Structural Manifest -->
-        <div class="lg:col-span-6 space-y-4">
-          
-          <!-- Pillar 1 -->
-          <div class="glass-panel p-6 border-l-4 border-l-orbCyan flex items-center justify-between">
             <div>
-              <div class="font-syncopate text-sm font-bold text-white">DIGITAL NETWORK ARCHITECT</div>
-              <div class="font-space text-xs text-orbCyan mt-0.5">STUDENT // SUPREME ARCHITECTURAL COMMAND</div>
-              <div class="text-white/60 text-xs font-jakarta mt-2">Overseeing spatial telemetry, 3-node predictive integration, and core hardware topologies.</div>
+                کلیه حقوق متعلق به پروتکل غیرمتمرکز ORBWEBS است. استقرار روی IPFS / GitHub Pages.
             </div>
-            <i data-lucide="shield-check" class="w-8 h-8 text-orbCyan shrink-0 ml-4"></i>
-          </div>
+        </div>
+    </footer>
 
-          <!-- Pillar 2 -->
-          <div class="glass-panel p-6 border-l-4 border-l-orbPurple flex items-center justify-between">
-            <div>
-              <div class="font-syncopate text-sm font-bold text-white">CRYPTOGRAPHIC RING DIVISION</div>
-              <div class="font-space text-xs text-orbPurple mt-0.5">SOVEREIGN SECURITY & ZKP ENCLAVE</div>
-              <div class="text-white/60 text-xs font-jakarta mt-2">Zero-copy DMA hardware validation and legal-social credential bridges.</div>
-            </div>
-            <i data-lucide="key-round" class="w-8 h-8 text-orbPurple shrink-0 ml-4"></i>
-          </div>
+    <!-- Three.js Interactive Particle Sphere (شبیه‌ساز کره تار عنکبوت مادر) -->
+    <script>
+        const canvas = document.getElementById('orb-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
 
-          <!-- Pillar 3 -->
-          <div class="glass-panel p-6 border-l-4 border-l-orbGold flex items-center justify-between">
-            <div>
-              <div class="font-syncopate text-sm font-bold text-white">SPATIAL PRODUCTION SYNDICATE</div>
-              <div class="font-space text-xs text-orbGold mt-0.5">COMPASS-ALPHA DIRECTORY GUILD</div>
-              <div class="text-white/60 text-xs font-jakarta mt-2">Directing global avatar weighting, NFT digital fashion distribution, and micro-contracts.</div>
-            </div>
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // ایجاد شبکه کروی نودها و خطوط متصل (Spider Web Sphere)
+        const particleCount = 280;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const radius = 2.2;
+
+        for (let i = 0; i < particleCount; i++) {
+            const phi = Math.acos(-1 + (2 * i) / particleCount);
+            const theta = Math.sqrt(particleCount * Math.PI) * phi;
+
+            positions[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
+            positions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        // متریال نقاط (نئونی سایبرنتیک)
+        const pointsMaterial = new THREE.PointsMaterial({
+            color: 0x00f0ff,
+            size: 0.035,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const spherePoints = new THREE.Points(geometry, pointsMaterial);
+        scene.add(spherePoints);
+
+        // وایرفریم تاری شکل درون کره
+        const wireGeometry = new THREE.IcosahedronGeometry(radius * 0.98, 2);
+        const wireMaterial = new THREE.MeshBasicMaterial({
+            color: 0x3b82f6,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.08
+        });
+        const wireSphere = new THREE.Mesh(wireGeometry, wireMaterial);
+        scene.add(wireSphere);
+
+        camera.position.z = 4.5;
+
+        // تعامل با ماوس
+        let mouseX = 0;
+        let mouseY = 0;
+        window.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth - 0.5) * 0.5;
+            mouseY = (event.clientY / window.innerHeight - 0.5) * 0.5;
+        });
+
+        // ریسپانسیو بودن سه‌بعدی
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // حلقه انیمیشن
+        function animate() {
+            requestAnimationFrame(animate);
+            spherePoints.rotation.y += 0.002;
+            spherePoints.rotation.x += 0.001;
+            wireSphere.rotation.y -= 0.0015;
+
+            // اثر جابجایی آرام با ماوس
+            spherePoints.rotation.y += mouseX * 0.05;
+            spherePoints.rotation.x += mouseY * 0.05;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // کنترلگر پنجره مودال تعاملی
+        const modal = document.getElementById('genesisModal');
+
+        function openGenesisModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closeGenesisModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // متوقف کردن ویدیو در صورت بستن
+                const vid = document.getElementById('loreVideo');
+                if (vid) vid.pause();
+            }, 300);
+        }
+
+        function toggleTerminal() {
+            openGenesisModal();
+        }
+    </script>
+</body>
+</html>
