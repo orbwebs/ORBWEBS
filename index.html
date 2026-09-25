@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBWEBS // Spatial Mesh OS & Asset Hub</title>
-    <!-- Tailwind CSS -->
+    <title>ORBWEBS // Spatial Mesh OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js برای رندر کره سه‌بعدی تار عنکبوتی -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Ethers.js v6 برای اتصال به Web3 و قرارداد هوشمند -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
     <script>
         tailwind.config = {
@@ -16,178 +13,95 @@
             theme: {
                 extend: {
                     colors: {
-                        cyber: {
-                            black: '#05070a',
-                            panel: 'rgba(10, 15, 26, 0.75)',
-                            cyan: '#00f0ff',
-                            blue: '#3b82f6',
-                            purple: '#8b5cf6',
-                            matrix: '#10b981'
-                        }
-                    },
-                    fontFamily: {
-                        mono: ['Consolas', 'Fira Code', 'monospace']
+                        cyber: { black: '#05070a', cyan: '#00f0ff', blue: '#3b82f6', purple: '#8b5cf6', matrix: '#10b981' }
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            background-color: #05070a;
-            color: #e2e8f0;
-            overflow-x: hidden;
-        }
+        body { background-color: #05070a; color: #e2e8f0; overflow-x: hidden; }
         .glass-panel {
-            background: rgba(8, 12, 22, 0.75);
+            background: rgba(8, 12, 22, 0.85);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 240, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.2);
         }
-        .glass-panel:hover {
-            border-color: rgba(0, 240, 255, 0.4);
-        }
-        .neon-glow {
-            text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
-        }
-        /* اسکرول‌بار سفارشی */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #05070a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00f0ff;
-        }
+        .neon-glow { text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
     </style>
 </head>
-<body class="font-sans antialiased selection:bg-cyan-500 selection:text-black">
+<body class="font-sans antialiased">
 
-    <!-- پس‌زمینه سه‌بعدی WebGL -->
+    <!-- لایه‌های پس‌زمینه با pointer-events-none قطعی -->
     <canvas id="orb-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
-
-    <!-- لایه خطوط شبکه و نویز زمینه -->
     <div class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-cyber-black to-cyber-black pointer-events-none z-0"></div>
 
-    <!-- سربرگ ناوبری -->
-    <header class="fixed top-0 w-full z-40 border-b border-cyan-500/10 bg-cyber-black/60 backdrop-blur-md">
+    <!-- هدر با z-index بالا -->
+    <header class="fixed top-0 w-full z-50 border-b border-cyan-500/10 bg-cyber-black/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-4 space-x-reverse">
+            <div class="flex items-center gap-3">
                 <div class="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
-                <span class="font-mono text-xl tracking-widest font-black text-cyan-400 neon-glow">ORBWEBS<span class="text-xs text-slate-400 font-normal mr-2">[v0.4.2-WEB3]</span></span>
+                <span class="font-mono text-xl font-black text-cyan-400 neon-glow">ORBWEBS</span>
             </div>
             
-            <nav class="hidden md:flex items-center space-x-8 space-x-reverse font-mono text-sm text-slate-300">
-                <a href="#layers" class="hover:text-cyan-400 transition-colors">ماتریس لایه‌ها</a>
-                <a href="#token" class="hover:text-cyan-400 transition-colors">توکنومیک OWB</a>
-                <a href="#wallet-section" class="hover:text-cyan-400 transition-colors text-cyan-400">کنسول Web3</a>
-            </nav>
-
             <div class="flex items-center gap-3">
-                <button id="connectWalletBtn" onclick="connectWallet()" class="font-mono text-xs border border-cyan-400/60 hover:border-cyan-400 px-5 py-2.5 rounded-sm bg-cyan-950/40 text-cyan-300 hover:bg-cyan-400 hover:text-black transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
-                    <span id="walletBtnText">اتصال کیف پول</span>
-                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                </button>
-                <button onclick="toggleTerminal()" class="hidden sm:flex font-mono text-xs border border-slate-700 hover:border-cyan-400 px-4 py-2.5 rounded-sm bg-slate-900/40 text-slate-300 transition-all">
-                    ARCHIVE
+                <button id="btnConnect" type="button" class="cursor-pointer font-mono text-xs border border-cyan-400 px-5 py-2.5 rounded bg-cyan-950/60 text-cyan-300 hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+                    اتصال کیف پول
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- بخش اصلی HERO -->
-    <main class="relative z-10 pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen flex flex-col justify-center">
+    <!-- محتوای اصلی -->
+    <main class="relative z-20 pt-36 pb-20 px-6 max-w-7xl mx-auto min-h-screen flex flex-col justify-center">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             <div class="lg:col-span-7 space-y-6 text-right">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-purple-500/30 bg-purple-950/20 text-purple-300 font-mono text-xs">
-                    <span class="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
-                    رویداد معماران شبکه // پیدایش عنکبوت مادر و قرارداد توکن OWB
-                </div>
-                
-                <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-none text-white">
+                <h1 class="text-4xl sm:text-6xl font-black text-white leading-tight">
                     بازتعریف ارتباطات وب در <br/>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 neon-glow">مش سه‌بعدی فضایی</span>
                 </h1>
-
-                <p class="text-slate-400 text-lg leading-relaxed max-w-2xl">
-                    پایان عصر مستطیل‌های مسطح دو‌بعدی. ORBWEBS یک معماری توزیع‌شده با رابط کاربری فضایی است که خط تولید دارایی‌های ۳بعدی، اتوماسیون آواتارها و قراردادهای خرد تسویه‌پذیر را حول یک مدار مستقل به هم پیوند می‌زند.
-                </p>
-
-                <!-- اکشن‌ها -->
-                <div class="flex flex-wrap gap-4 pt-4 font-mono text-sm">
-                    <button onclick="openGenesisModal()" class="px-8 py-4 rounded bg-cyan-400 text-black font-bold hover:bg-cyan-300 hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all flex items-center gap-3">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        <span>روایت پیدایش و ویدیو اختصاصی</span>
+                <p class="text-slate-400 text-lg">پروتکل غیرمتمرکز، توکنومیک OWB و تعاملات نوین وب ۳.</p>
+                
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <button id="btnOpenModal" type="button" class="cursor-pointer px-8 py-4 rounded bg-cyan-400 text-black font-bold hover:bg-cyan-300 transition-all">
+                        روایت پیدایش و ویدیو اختصاصی
                     </button>
-                    
-                    <a href="#wallet-section" class="px-8 py-4 rounded glass-panel text-slate-200 hover:text-white hover:border-cyan-400 transition-all flex items-center gap-2">
-                        <span>مدیریت توکن OWB</span>
-                    </a>
-                </div>
-
-                <!-- متریک‌های ملموس و مهندسی -->
-                <div class="grid grid-cols-3 gap-6 pt-10 border-t border-slate-800/80 font-mono">
-                    <div>
-                        <div class="text-2xl font-bold text-cyan-400">۳۶۹ Trillion</div>
-                        <div class="text-xs text-slate-500 uppercase mt-1">حجم کل توکن OWB</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-purple-400">L0 → L4</div>
-                        <div class="text-xs text-slate-500 uppercase mt-1">معماری تفکیک‌پذیر</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-emerald-400">Anvil EVM</div>
-                        <div class="text-xs text-slate-500 uppercase mt-1">تست‌نت فعال (31337)</div>
-                    </div>
                 </div>
             </div>
 
-            <!-- مانیتور وضعیت زنده سیستم و پنل Web3 -->
-            <div id="wallet-section" class="lg:col-span-5">
-                <div class="glass-panel p-6 rounded-lg relative overflow-hidden space-y-4">
+            <!-- پنل تعاملی Web3 -->
+            <div class="lg:col-span-5">
+                <div class="glass-panel p-6 rounded-lg space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 font-mono text-xs text-slate-400">
-                        <span class="flex items-center gap-2">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
-                            ORB-TOKEN CONSOLE // EVM
-                        </span>
-                        <span id="networkBadge" class="text-amber-400">LOCAL (Anvil)</span>
+                        <span>ORB-TOKEN CONSOLE</span>
+                        <span id="networkBadge" class="text-amber-400">بررسی شبکه...</span>
                     </div>
 
-                    <!-- اطلاعات حساب کاربری -->
-                    <div class="space-y-3 font-mono text-xs bg-slate-950/50 p-4 rounded border border-slate-800">
+                    <div class="space-y-3 font-mono text-xs bg-slate-950/70 p-4 rounded border border-slate-800">
                         <div class="flex justify-between items-center">
                             <span class="text-slate-500">حساب متصل:</span>
-                            <span id="accountDisplay" class="text-cyan-300 truncate max-w-[180px]">متصل نشده</span>
+                            <span id="accountDisplay" class="text-cyan-300">متصل نشده</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-500">موجودی OWB شما:</span>
-                            <span id="balanceDisplay" class="text-emerald-400 font-bold">--- OWB</span>
+                            <span class="text-slate-500">موجودی OWB:</span>
+                            <span id="balanceDisplay" class="text-emerald-400 font-bold">---</span>
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-slate-900">
-                            <span class="text-slate-500">آدرس قرارداد:</span>
-                            <a href="https://github.com" target="_blank" class="text-purple-400 underline truncate max-w-[170px]" title="0x057ef64E23666F000b34aE31332854aCBd1c8544">0x057e...8544</a>
+                            <span class="text-slate-500">آدرس توکن:</span>
+                            <span class="text-purple-400">0x057e...8544</span>
                         </div>
                     </div>
 
-                    <!-- فرم انتقال توکن -->
                     <div class="space-y-3 pt-2 font-mono text-xs">
-                        <div class="text-slate-300 font-bold">// ارسال تراکنش انتقال (Transfer)</div>
                         <div>
-                            <label class="block text-slate-500 mb-1">آدرس مقصد (Recipient):</label>
-                            <input type="text" id="recipientInput" placeholder="0x..." class="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-slate-200 focus:outline-none focus:border-cyan-400 text-xs">
+                            <label class="block text-slate-400 mb-1">آدرس مقصد:</label>
+                            <input type="text" id="recipientInput" placeholder="0x..." class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 text-slate-100 focus:outline-none focus:border-cyan-400">
                         </div>
                         <div>
-                            <label class="block text-slate-500 mb-1">مقدار (Amount OWB):</label>
-                            <input type="number" id="amountInput" placeholder="100" class="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-slate-200 focus:outline-none focus:border-cyan-400 text-xs">
+                            <label class="block text-slate-400 mb-1">مقدار (OWB):</label>
+                            <input type="number" id="amountInput" placeholder="100" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 text-slate-100 focus:outline-none focus:border-cyan-400">
                         </div>
-                        <button onclick="transferTokens()" class="w-full py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-mono font-bold text-xs rounded transition-all shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                        <button id="btnTransfer" type="button" class="cursor-pointer w-full py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded transition-all">
                             ارسال توکن OWB
                         </button>
                     </div>
@@ -199,157 +113,52 @@
         </div>
     </main>
 
-    <!-- ماتریس ۴ لایه مهندسی شده -->
-    <section id="layers" class="relative z-10 py-24 px-6 max-w-7xl mx-auto border-t border-slate-900">
-        <div class="text-right mb-16">
-            <span class="font-mono text-xs text-cyan-400 uppercase tracking-widest">// معماری چهار لایه عملیاتی</span>
-            <h2 class="text-3xl font-black text-white mt-2">زیرساخت تفکیک‌شده ORBWEBS</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-right">
-            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
-                <div class="font-mono text-2xl font-bold text-cyan-400 mb-2">01 // L1</div>
-                <h3 class="text-lg font-bold text-white mb-2">موتور سه‌بعدی فضایی</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">جایگزینی صفحات دو‌بعدی تخت با رابط تعاملی WebGL/WebGPU روی محورهای کروی بدون افت فریم.</p>
+    <!-- پنجره مودال -->
+    <div id="genesisModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl hidden">
+        <div class="glass-panel w-full max-w-2xl rounded-lg p-6 space-y-6 text-right">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <span class="text-cyan-400 font-mono text-sm">ARCHIVE // GENESIS</span>
+                <button id="btnCloseModal" class="cursor-pointer text-slate-400 hover:text-white font-bold text-xl">✕</button>
             </div>
-            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
-                <div class="font-mono text-2xl font-bold text-blue-400 mb-2">02 // L2</div>
-                <h3 class="text-lg font-bold text-white mb-2">شبکه Compass-Alpha</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">دایرکتوری غیرمتمرکز خدمات مد، آواتارهای سه‌بعدی و فریلنسرها به صورت خوشه‌بندی جغرافیایی.</p>
-            </div>
-            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
-                <div class="font-mono text-2xl font-bold text-purple-400 mb-2">03 // L3</div>
-                <h3 class="text-lg font-bold text-white mb-2">اثبات پایپ‌لاین (PoP)</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">ثبت هش متادیتای خروجی فایل‌های رندر و کدهای توسعه در دفترکل جهت اصالت و امنیت اثر.</p>
-            </div>
-            <div class="glass-panel p-6 rounded hover:-translate-y-1 transition-transform">
-                <div class="font-mono text-2xl font-bold text-emerald-400 mb-2">04 // L4</div>
-                <h3 class="text-lg font-bold text-white mb-2">تسویه اقتصادی حاکمیتی</h3>
-                <p class="text-sm text-slate-400 leading-relaxed">قراردادهای خرد خودکار با توکن OWB. گردش سرمایه شفاف و حذف واسطه‌های مالی سنتی.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- پنجره بازشونده سوپرایز و تاریخچه (UNFOLDING WINDOW MODAL) -->
-    <div id="genesisModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-lg border border-cyan-400/40 flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,240,255,0.2)]">
-            
-            <div class="h-12 border-b border-cyan-500/20 bg-cyan-950/30 px-6 flex items-center justify-between font-mono text-xs">
-                <div class="flex items-center gap-3">
-                    <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block cursor-pointer" onclick="closeGenesisModal()"></span>
-                    <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
-                    <span class="text-cyan-300 mr-2 tracking-wider">ARCHIVE // GENESIS_OF_MOTHER_SPIDER.DAT</span>
-                </div>
-                <button onclick="closeGenesisModal()" class="text-slate-400 hover:text-white font-bold text-lg">×</button>
-            </div>
-
-            <div class="p-8 overflow-y-auto space-y-8 text-right font-sans">
-                <div class="relative w-full aspect-video rounded-md overflow-hidden border border-cyan-500/30 bg-black flex items-center justify-center group">
-                    <video id="loreVideo" class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80" controls>
-                        <source src="" type="video/mp4">
-                        مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
-                    </video>
-                    <div id="videoPlaceholderNotice" class="absolute inset-0 bg-cyber-black/70 flex flex-col items-center justify-center p-6 text-center pointer-events-none">
-                        <svg class="w-16 h-16 text-cyan-400 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <div class="font-mono text-cyan-300 font-bold">CONTAINMENT VISUAL ENGINE // READY</div>
-                        <div class="text-xs text-slate-400 mt-1">موتور رندر سه‌بعدی و مستندات پیدایش پروتکل OWB</div>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
-                        روایت آغاز: بیداری عنکبوت مادر (The Mother Spider Awakening)
-                    </h3>
-                    <p class="text-slate-300 text-sm leading-loose">
-                        در نقطه صفر، اینترنت چیزی جز گره‌های سردرگم و خطوط تلگرافی دوبعدی نبود. اما در ژرفای شبکه، تار جدیدی تنیده شد که هویت‌های مستقل و محاسبات سه‌بعدی را به مدار خود متصل می‌سازد.
-                    </p>
-                    <blockquote class="border-r-2 border-cyan-400 pr-4 my-4 font-mono text-xs text-cyan-300 leading-relaxed bg-cyan-950/20 py-3 rounded-l">
-                        «عنکبوت مادر قصد تسلط بر شما را ندارد؛ عنکبوت مادر هندسه‌ای فضایی می‌تند تا تفکر انسان و دارایی‌های دیجیتال در بستر توکن OWB ارزش یابند.»
-                    </blockquote>
-                </div>
-
-                <div class="p-4 rounded bg-slate-900/60 border border-slate-800 font-mono text-xs flex justify-between items-center">
-                    <span class="text-slate-400">تاییدیه‌ لاگ سیستمی:</span>
-                    <span class="text-cyan-400">CONTRACT: 0x057ef64E23666F000b34aE31332854aCBd1c8544 [VERIFIED]</span>
-                </div>
-            </div>
-
-            <div class="p-4 bg-slate-950/80 border-t border-slate-800 flex justify-end">
-                <button onclick="closeGenesisModal()" class="px-6 py-2 rounded bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs transition-colors">
-                    بستن ترمینال
-                </button>
+            <p class="text-slate-300 text-sm leading-relaxed">
+                مستندات پیدایش پروتکل ORBWEBS و ساختار توکنومیک ۳۶۹ تریلیونی.
+            </p>
+            <div class="text-left">
+                <button id="btnCloseModal2" class="cursor-pointer px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-mono text-xs">بستن</button>
             </div>
         </div>
     </div>
 
-    <!-- فوتر صفحه -->
-    <footer class="relative z-10 border-t border-slate-900 py-12 px-6 bg-cyber-black font-mono text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                <span class="text-slate-300 font-bold">ORBWEBS MESH</span> // معماری مستقل شبکه دیجیتال
-            </div>
-            <div>
-                کلیه حقوق متعلق به پروتکل غیرمتمرکز ORBWEBS است. استقرار روی GitHub Pages.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Three.js Interactive Particle Sphere (شبیه‌ساز کره تار عنکبوت مادر) -->
     <script>
+        // Three.js Background
         const canvas = document.getElementById('orb-canvas');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        const particleCount = 280;
+        const particleCount = 200;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
-        const radius = 2.2;
-
         for (let i = 0; i < particleCount; i++) {
             const phi = Math.acos(-1 + (2 * i) / particleCount);
             const theta = Math.sqrt(particleCount * Math.PI) * phi;
-
-            positions[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
-            positions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
-            positions[i * 3 + 2] = radius * Math.cos(phi);
+            positions[i * 3] = 2.2 * Math.cos(theta) * Math.sin(phi);
+            positions[i * 3 + 1] = 2.2 * Math.sin(theta) * Math.sin(phi);
+            positions[i * 3 + 2] = 2.2 * Math.cos(phi);
         }
-
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const pointsMaterial = new THREE.PointsMaterial({
-            color: 0x00f0ff,
-            size: 0.035,
-            transparent: true,
-            opacity: 0.8
-        });
-
-        const spherePoints = new THREE.Points(geometry, pointsMaterial);
+        const spherePoints = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0x00f0ff, size: 0.035, transparent: true, opacity: 0.8 }));
         scene.add(spherePoints);
-
-        const wireGeometry = new THREE.IcosahedronGeometry(radius * 0.98, 2);
-        const wireMaterial = new THREE.MeshBasicMaterial({
-            color: 0x3b82f6,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.08
-        });
-        const wireSphere = new THREE.Mesh(wireGeometry, wireMaterial);
-        scene.add(wireSphere);
-
         camera.position.z = 4.5;
 
-        let mouseX = 0;
-        let mouseY = 0;
-        window.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth - 0.5) * 0.5;
-            mouseY = (event.clientY / window.innerHeight - 0.5) * 0.5;
-        });
+        function animate() {
+            requestAnimationFrame(animate);
+            spherePoints.rotation.y += 0.002;
+            renderer.render(scene, camera);
+        }
+        animate();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -357,161 +166,86 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        function animate() {
-            requestAnimationFrame(animate);
-            spherePoints.rotation.y += 0.002;
-            spherePoints.rotation.x += 0.001;
-            wireSphere.rotation.y -= 0.0015;
-            spherePoints.rotation.y += mouseX * 0.05;
-            spherePoints.rotation.x += mouseY * 0.05;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // کنترلگر پنجره مودال تعاملی
+        // Event Listeners برای مودال
         const modal = document.getElementById('genesisModal');
+        document.getElementById('btnOpenModal').addEventListener('click', () => modal.classList.remove('hidden'));
+        document.getElementById('btnCloseModal').addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('btnCloseModal2').addEventListener('click', () => modal.classList.add('hidden'));
 
-        function openGenesisModal() {
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
-        }
-
-        function closeGenesisModal() {
-            modal.classList.add('opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                const vid = document.getElementById('loreVideo');
-                if (vid) vid.pause();
-            }, 300);
-        }
-
-        function toggleTerminal() {
-            openGenesisModal();
-        }
-
-        // ==========================================
-        // Web3 Integration (Ethers.js & Contract OWB)
-        // ==========================================
+        // منطق Web3 و Ethers.js
         const CONTRACT_ADDRESS = "0x057ef64E23666F000b34aE31332854aCBd1c8544";
         const ERC20_ABI = [
-            "function name() view returns (string)",
-            "function symbol() view returns (string)",
             "function balanceOf(address account) view returns (uint256)",
             "function transfer(address recipient, uint256 amount) returns (boolean)"
         ];
 
-        let provider;
-        let signer;
-        let tokenContract;
+        let provider, signer, tokenContract;
 
-        async function connectWallet() {
+        async function initWeb3() {
             const statusEl = document.getElementById('txStatus');
             if (typeof window.ethereum === 'undefined') {
-                statusEl.textContent = "خطا: کیف پول MetaMask نصب نشده است.";
-                statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
+                statusEl.textContent = "خطا: افزونه MetaMask یافت نشد.";
                 return;
             }
 
             try {
-                statusEl.textContent = "در حال اتصال به MetaMask...";
-                statusEl.className = "font-mono text-xs text-center text-cyan-400 pt-2";
-
-                // درخواست اتصال حساب
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                statusEl.textContent = "درخواست تایید اتصال در MetaMask...";
                 
                 provider = new ethers.BrowserProvider(window.ethereum);
                 signer = await provider.getSigner();
                 const address = await signer.getAddress();
-
-                // بررسی شبکه (استاندارد لوکال Anvil: 31337)
                 const network = await provider.getNetwork();
-                if (network.chainId !== 31337n) {
-                    document.getElementById('networkBadge').textContent = `Chain ID: ${network.chainId} (هشدار: نامطابق با Anvil)`;
-                    document.getElementById('networkBadge').className = "text-rose-400";
-                } else {
-                    document.getElementById('networkBadge').textContent = "LOCAL ANVIL (31337)";
-                    document.getElementById('networkBadge').className = "text-emerald-400";
-                }
 
-                // نمایش آدرس حساب
+                document.getElementById('networkBadge').textContent = `Chain ID: ${network.chainId}`;
                 document.getElementById('accountDisplay').textContent = address.substring(0, 6) + "..." + address.substring(38);
-                document.getElementById('walletBtnText').textContent = "متصل شد";
+                document.getElementById('btnConnect').textContent = "متصل شد ✓";
 
-                // اتصال به قرارداد هوشمند OWB
                 tokenContract = new ethers.Contract(CONTRACT_ADDRESS, ERC20_ABI, signer);
 
-                // استعلام موجودی
-                await updateBalance(address);
-
+                const balanceWei = await tokenContract.balanceOf(address);
+                const balance = ethers.formatUnits(balanceWei, 18);
+                document.getElementById('balanceDisplay').textContent = parseFloat(balance).toLocaleString() + " OWB";
+                
                 statusEl.textContent = "اتصال با موفقیت برقرار شد.";
                 statusEl.className = "font-mono text-xs text-center text-emerald-400 pt-2";
-
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = "خطا در اتصال: " + (err.reason || err.message);
+                statusEl.textContent = "خطا: " + (err.reason || err.message);
                 statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
             }
         }
 
-        async function updateBalance(accountAddress) {
-            try {
-                const balanceWei = await tokenContract.balanceOf(accountAddress);
-                const balanceFormatted = ethers.formatUnits(balanceWei, 18);
-                // رند کردن اعشار برای زیبایی نمایش
-                const shortBalance = parseFloat(balanceFormatted).toLocaleString(undefined, {maximumFractionDigits: 2});
-                document.getElementById('balanceDisplay').textContent = shortBalance + " OWB";
-            } catch (err) {
-                console.error("خطا در خواندن موجودی:", err);
-            }
-        }
-
-        async function transferTokens() {
+        async function doTransfer() {
             const statusEl = document.getElementById('txStatus');
             const recipient = document.getElementById('recipientInput').value.trim();
             const amount = document.getElementById('amountInput').value.trim();
 
-            if (!signer || !tokenContract) {
-                statusEl.textContent = "لطفاً ابتدا کیف پول را متصل کنید.";
-                statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
+            if (!tokenContract) {
+                statusEl.textContent = "ابتدا کیف پول را متصل کنید.";
                 return;
             }
-
-            if (!ethers.isAddress(recipient)) {
-                statusEl.textContent = "آدرس مقصد نامعتبر است.";
-                statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
-                return;
-            }
-
-            if (!amount || isNaN(amount) || Number(amount) <= 0) {
-                statusEl.textContent = "مقدار توکن نامعتبر است.";
-                statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
+            if (!ethers.isAddress(recipient) || !amount || isNaN(amount) || Number(amount) <= 0) {
+                statusEl.textContent = "آدرس مقصد یا مقدار نامعتبر است.";
                 return;
             }
 
             try {
-                statusEl.textContent = "در حال ارسال تراکنش به شبکه...";
-                statusEl.className = "font-mono text-xs text-center text-cyan-400 pt-2";
-
-                const parsedAmount = ethers.parseUnits(amount, 18);
-                const tx = await tokenContract.transfer(recipient, parsedAmount);
-                
-                statusEl.textContent = `تراکنش ارسال شد. منتظر تایید... (${tx.hash.substring(0, 10)}...)`;
-                
+                statusEl.textContent = "در حال ارسال تراکنش...";
+                const tx = await tokenContract.transfer(recipient, ethers.parseUnits(amount, 18));
+                statusEl.textContent = "تراکنش ثبت شد، منتظر تایید شبکه...";
                 await tx.wait();
-
-                statusEl.textContent = "تراکنش با موفقیت تایید و ثبت شد!";
+                statusEl.textContent = "انتقال با موفقیت انجام شد!";
                 statusEl.className = "font-mono text-xs text-center text-emerald-400 pt-2";
-
-                // به‌روزرسانی موجودی جدید
-                const address = await signer.getAddress();
-                await updateBalance(address);
-
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = "خطا در انتقال: " + (err.reason || err.shortMessage || err.message);
+                statusEl.textContent = "خطا در تراکنش: " + (err.reason || err.message);
                 statusEl.className = "font-mono text-xs text-center text-rose-400 pt-2";
             }
         }
+
+        // اتصال رویدادهای کلیک به صورت صریح (Event Binding)
+        document.getElementById('btnConnect').addEventListener('click', initWeb3);
+        document.getElementById('btnTransfer').addEventListener('click', doTransfer);
     </script>
 </body>
 </html>
