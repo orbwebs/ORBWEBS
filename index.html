@@ -1,1 +1,342 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORBWEBS — Cybernetic Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: #0d121d;
+      --border: #1a2333;
+      --accent: #00f0ff;
+      --accent-dim: rgba(0, 240, 255, 0.12);
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+    .badge {
+      font-size: 11px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      text-transform: uppercase;
+      font-family: monospace;
+    }
+    .section {
+      background: #090d15;
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .val {
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+      color: #cbd5e1;
+    }
+    .balance-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .balance-val {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: monospace;
+    }
+    input {
+      width: 100%;
+      background: #06080c;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    button {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary { background: #1e293b; color: #fff; border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #334155; }
+    .status {
+      margin-top: 16px;
+      font-size: 12px;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 6px;
+      background: #06080c;
+      border: 1px solid var(--border);
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      word-break: break-all;
+    }
+    .status.ok { color: var(--success); border-color: var(--success); }
+    .status.bad { color: var(--danger); border-color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>ORBWEBS</h1>
+    <span class="badge">Base Sepolia</span>
+  </div>
+
+  <div class="section">
+    <div class="label">MetaMask Account</div>
+    <div id="addr" class="val">Not connected</div>
+    <div style="margin-top: 10px; display: flex; gap: 8px;">
+      <button id="btnConnect" class="btn-primary">Connect Wallet</button>
+      <button id="btnSwitch" class="btn-secondary">Switch to Base Sepolia</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="balance-box">
+      <div>
+        <div class="label">OWB Balance</div>
+        <div id="bal" class="balance-val">0.00 <span style="font-size: 13px;">OWB</span></div>
+      </div>
+      <button id="btnRefresh" class="btn-secondary" style="flex: 0; padding: 6px 12px; font-size: 12px;">Refresh</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="label">Transfer OWB Token</div>
+    <input id="toAddr" type="text" placeholder="Recipient address (0x...)" spellcheck="false" />
+    <input id="toAmount" type="text" placeholder="Amount (e.g. 10.5)" />
+    <button id="btnTransfer" class="btn-primary" style="width: 100%;">Transfer via MetaMask</button>
+  </div>
+
+  <div class="label">Token Contract</div>
+  <div class="val" style="font-size: 11px; margin-bottom: 8px;">0x60b21A54F54Ce9b2fC0D213cCC2dFD35562f7854</div>
+
+  <div id="statusBox" class="status">System idle. Connect wallet to start.</div>
+</div>
+
+<script>
+  const CONTRACT_ADDR = "0x60b21A54F54Ce9b2fC0D213cCC2dFD35562f7854";
+  const CHAIN_HEX = "0x14a44"; // 84532
+  const PUBLIC_RPC = "https://sepolia.base.org";
+
+  const ERC20_ABI = [
+    "function decimals() view returns (uint8)",
+    "function balanceOf(address) view returns (uint256)",
+    "function transfer(address to, uint256 amount) returns (bool)"
+  ];
+
+  // Direct public fallback provider (immune to MetaMask channel freezes)
+  const publicProvider = new ethers.providers.JsonRpcProvider(PUBLIC_RPC);
+  const publicContract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, publicProvider);
+
+  let userAddress = null;
+
+  function setStatus(msg, type = "") {
+    const box = document.getElementById("statusBox");
+    box.className = "status " + type;
+    box.textContent = msg;
+  }
+
+  async function connect() {
+    if (!window.ethereum) {
+      return setStatus("MetaMask not found! Please install or open MetaMask extension.", "bad");
+    }
+
+    try {
+      setStatus("Opening MetaMask prompt...");
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      
+      if (!accounts || accounts.length === 0) {
+        return setStatus("Connection rejected by user.", "bad");
+      }
+
+      userAddress = accounts[0];
+      document.getElementById("addr").textContent = userAddress;
+      setStatus("Connected: " + userAddress.substring(0, 6) + "..." + userAddress.substring(38), "ok");
+
+      await fetchBalance();
+    } catch (err) {
+      console.error(err);
+      if (err?.message?.includes("Broadcast channel") || err?.code === -32603) {
+        setStatus("MetaMask extension sleeping. Please click the Fox icon in browser to unlock, then retry.", "bad");
+      } else {
+        setStatus("Error: " + (err.message || err), "bad");
+      }
+    }
+  }
+
+  async function switchNetwork() {
+    if (!window.ethereum) return setStatus("MetaMask not found.", "bad");
+
+    try {
+      setStatus("Requesting network switch...");
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: CHAIN_HEX }]
+      });
+      setStatus("Connected to Base Sepolia.", "ok");
+    } catch (switchError) {
+      if (switchError.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: CHAIN_HEX,
+              chainName: "Base Sepolia Testnet",
+              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+              rpcUrls: [PUBLIC_RPC],
+              blockExplorerUrls: ["https://sepolia.basescan.org"]
+            }]
+          });
+          setStatus("Base Sepolia added and switched.", "ok");
+        } catch (addError) {
+          setStatus("Could not add network: " + (addError.message || addError), "bad");
+        }
+      } else {
+        setStatus("Switch error: " + (switchError.message || switchError), "bad");
+      }
+    }
+  }
+
+  async function fetchBalance() {
+    if (!userAddress) {
+      return setStatus("Please connect wallet first.", "bad");
+    }
+
+    try {
+      setStatus("Reading balance directly from Base node...");
+      const decimals = await publicContract.decimals();
+      const balance = await publicContract.balanceOf(userAddress);
+      const formatted = ethers.utils.formatUnits(balance, decimals);
+
+      document.getElementById("bal").innerHTML = `${formatted} <span style="font-size: 13px;">OWB</span>`;
+      setStatus("Balance updated.", "ok");
+    } catch (err) {
+      console.error("Balance fetch error:", err);
+      setStatus("Failed to read balance: " + (err.message || err), "bad");
+    }
+  }
+
+  async function transfer() {
+    if (!userAddress || !window.ethereum) {
+      return setStatus("Connect wallet first.", "bad");
+    }
+
+    const to = document.getElementById("toAddr").value.trim();
+    const amountStr = document.getElementById("toAmount").value.trim();
+
+    if (!ethers.utils.isAddress(to)) {
+      return setStatus("Invalid recipient address format.", "bad");
+    }
+    if (!amountStr || isNaN(amountStr) || Number(amountStr) <= 0) {
+      return setStatus("Invalid transfer amount.", "bad");
+    }
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, signer);
+
+      const decimals = await contract.decimals();
+      const amount = ethers.utils.parseUnits(amountStr, decimals);
+
+      setStatus("Confirm transaction in MetaMask popup...");
+      const tx = await contract.transfer(to, amount);
+      setStatus("Transaction sent: " + tx.hash, "ok");
+
+      await tx.wait();
+      setStatus("Transfer successfully confirmed!", "ok");
+      document.getElementById("toAddr").value = "";
+      document.getElementById("toAmount").value = "";
+      await fetchBalance();
+    } catch (err) {
+      console.error(err);
+      setStatus("Transfer failed: " + (err?.data?.message || err?.message || err), "bad");
+    }
+  }
+
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", (accs) => {
+      if (accs.length > 0) {
+        userAddress = accs[0];
+        document.getElementById("addr").textContent = userAddress;
+        fetchBalance();
+      } else {
+        userAddress = null;
+        document.getElementById("addr").textContent = "Not connected";
+        document.getElementById("bal").innerHTML = `0.00 <span style="font-size: 13px;">OWB</span>`;
+      }
+    });
+  }
+
+  document.getElementById("btnConnect").addEventListener("click", connect);
+  document.getElementById("btnSwitch").addEventListener("click", switchNetwork);
+  document.getElementById("btnRefresh").addEventListener("click", fetchBalance);
+  document.getElementById("btnTransfer").addEventListener("click", transfer);
+</script>
+
+</body>
+</html>
