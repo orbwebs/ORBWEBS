@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ORBWEBS — Cybernetic Portal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #07090e;
@@ -105,7 +106,6 @@
       transition: border 0.2s;
     }
     input:focus { border-color: var(--accent); }
-    .btn-group { display: flex; gap: 8px; }
     button {
       flex: 1;
       padding: 11px;
@@ -177,36 +177,19 @@
   <div id="statusBox" class="status">System idle. Connect wallet to start.</div>
 </div>
 
-<script type="module">
-  import { createThirdwebClient, getContract, readContract, prepareContractCall, sendTransaction } from "https://esm.sh/thirdweb@5";
-  import { createWallet } from "https://esm.sh/thirdweb@5/wallets";
-  import { defineChain } from "https://esm.sh/thirdweb@5/chains";
-
-  // Production Parameters
-  const CLIENT_ID = "76a1ef6f39d9d36b3f63a69fd6d8b708";
+<script>
   const CONTRACT_ADDR = "0x60b21A54F54Ce9b2fC0D213cCC2dFD35562f7854";
-  const CHAIN_ID = 84532;
+  const CHAIN_HEX = "0x14a44"; // 84532 in hex
 
-  const chain = defineChain({
-    id: CHAIN_ID,
-    rpcUrls: { default: { http: ["https://sepolia.base.org"] } }
-  });
+  const ERC20_ABI = [
+    "function decimals() view returns (uint8)",
+    "function balanceOf(address) view returns (uint256)",
+    "function transfer(address to, uint256 amount) returns (bool)"
+  ];
 
-  const client = createThirdwebClient({ clientId: CLIENT_ID });
-  const wallet = createWallet("io.metamask");
-
-  const contract = getContract({
-    client,
-    chain,
-    address: CONTRACT_ADDR,
-    abi: [
-      { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ type: "uint8" }] },
-      { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "uint256" }] },
-      { type: "function", name: "transfer", stateMutability: "nonpayable", inputs: [{ name: "recipient", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ type: "bool" }] }
-    ]
-  });
-
-  let account = null;
+  let provider = null;
+  let signer = null;
+  let currentAccount = null;
 
   const setStatus = (msg, type = "") => {
     const box = document.getElementById("statusBox");
@@ -214,118 +197,154 @@
     box.textContent = msg;
   };
 
-  // Safe BigInt formatting
-  function formatBigIntUnits(value, decimals) {
-    const s = value.toString().padStart(decimals + 1, "0");
-    const head = s.slice(0, -decimals);
-    const tail = s.slice(-decimals).replace(/0+$/, "");
-    return tail ? `${head}.${tail}` : head;
+  async function initProvider() {
+    if (!window.ethereum) {
+      setStatus("Error: MetaMask is not installed in your browser.", "bad");
+      return false;
+    }
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    return true;
   }
 
-  // Safe BigInt parsing
-  function parseBigIntUnits(amountStr, decimals) {
-    const clean = amountStr.trim();
-    if (!/^\d+(\.\d+)?$/.test(clean)) throw new Error("Invalid amount numeric format.");
-    const [whole, fraction = ""] = clean.split(".");
-    if (fraction.length > decimals) throw new Error(`Precision exceeds token decimals (${decimals}).`);
-    const full = whole + fraction.padEnd(decimals, "0");
-    return BigInt(full);
-  }
-
-  async function connect() {
+  async function connectWallet() {
     try {
-      setStatus("Initializing MetaMask handshake...");
-      account = await wallet.connect({ client });
-      document.getElementById("addr").textContent = account.address;
-      setStatus("Wallet connected successfully.", "ok");
+      if (!await initProvider()) return;
+      setStatus("Connecting to MetaMask...");
+      const accounts = await provider.send("eth_requestAccounts", []);
+      if (!accounts || accounts.length === 0) {
+        setStatus("No account selected.", "bad");
+        return;
+      }
+      currentAccount = accounts[0];
+      signer = provider.getSigner();
+      document.getElementById("addr").textContent = currentAccount;
+      setStatus("Wallet connected: " + currentAccount.substring(0, 6) + "..." + currentAccount.substring(38), "ok");
+      
+      await checkNetwork();
       await updateBalance();
     } catch (err) {
+      console.error(err);
       setStatus("Connection error: " + (err.message || err), "bad");
     }
   }
 
+  async function checkNetwork() {
+    if (!window.ethereum) return;
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+    if (chainId.toLowerCase() !== CHAIN_HEX.toLowerCase()) {
+      setStatus("Warning: Wrong network. Please switch to Base Sepolia.", "bad");
+    }
+  }
+
   async function switchNetwork() {
+    if (!window.ethereum) return setStatus("MetaMask not found.", "bad");
     try {
-      setStatus("Requesting network switch to Base Sepolia...");
-      const provider = await wallet.getProvider();
-      await provider.request({
+      setStatus("Switching network to Base Sepolia...");
+      await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x" + CHAIN_ID.toString(16) }]
+        params: [{ chainId: CHAIN_HEX }]
       });
-      setStatus("Active network verified: Base Sepolia.", "ok");
+      setStatus("Network active: Base Sepolia", "ok");
+      await updateBalance();
     } catch (err) {
-      // Chain not added to metamask
-      if (err?.code === 4902) {
+      if (err.code === 4902) {
         try {
-          const provider = await wallet.getProvider();
-          await provider.request({
+          await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [{
-              chainId: "0x" + CHAIN_ID.toString(16),
+              chainId: CHAIN_HEX,
               chainName: "Base Sepolia",
               nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
               rpcUrls: ["https://sepolia.base.org"],
               blockExplorerUrls: ["https://sepolia.basescan.org"]
             }]
           });
-          setStatus("Base Sepolia added and switched.", "ok");
+          setStatus("Base Sepolia added and selected.", "ok");
         } catch (addErr) {
-          setStatus("Failed adding chain: " + (addErr.message || addErr), "bad");
+          setStatus("Add chain error: " + (addErr.message || addErr), "bad");
         }
       } else {
-        setStatus("Network switch error: " + (err.message || err), "bad");
+        setStatus("Switch error: " + (err.message || err), "bad");
       }
     }
   }
 
   async function updateBalance() {
-    if (!account) return setStatus("Connect wallet to read balance.", "bad");
+    if (!currentAccount) {
+      setStatus("Connect wallet first.", "bad");
+      return;
+    }
     try {
-      setStatus("Querying node for OWB balance...");
-      const decimals = await readContract({ contract, method: "decimals", params: [] });
-      const rawBal = await readContract({ contract, method: "balanceOf", params: [account.address] });
-
-      const balFormatted = formatBigIntUnits(rawBal, Number(decimals));
-      document.getElementById("bal").innerHTML = `${balFormatted} <span style="font-size: 13px;">OWB</span>`;
-      setStatus("State synced.", "ok");
+      setStatus("Reading balance from blockchain...");
+      const contract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, provider);
+      const decimals = await contract.decimals();
+      const rawBal = await contract.balanceOf(currentAccount);
+      const formatted = ethers.utils.formatUnits(rawBal, decimals);
+      
+      document.getElementById("bal").innerHTML = `${formatted} <span style="font-size: 13px;">OWB</span>`;
+      setStatus("Balance updated.", "ok");
     } catch (err) {
-      setStatus("Contract read failure: " + (err.message || err), "bad");
+      console.error(err);
+      setStatus("Error reading contract: " + (err.message || err), "bad");
     }
   }
 
   async function executeTransfer() {
-    if (!account) return setStatus("Action rejected: Wallet not connected.", "bad");
+    if (!currentAccount || !signer) {
+      setStatus("Please connect MetaMask first.", "bad");
+      return;
+    }
     const to = document.getElementById("toAddr").value.trim();
     const amountStr = document.getElementById("toAmount").value.trim();
 
-    if (!/^0x[a-fA-F0-9]{40}$/.test(to)) return setStatus("Validation error: Invalid Ethereum address format.", "bad");
+    if (!ethers.utils.isAddress(to)) {
+      setStatus("Validation error: Invalid recipient address.", "bad");
+      return;
+    }
+    if (!amountStr || isNaN(amountStr) || Number(amountStr) <= 0) {
+      setStatus("Validation error: Invalid amount.", "bad");
+      return;
+    }
 
     try {
-      const decimals = await readContract({ contract, method: "decimals", params: [] });
-      const amountBigInt = parseBigIntUnits(amountStr, Number(decimals));
+      setStatus("Preparing transaction in MetaMask...");
+      const contract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, signer);
+      const decimals = await contract.decimals();
+      const parsedAmount = ethers.utils.parseUnits(amountStr, decimals);
 
-      if (amountBigInt <= 0n) return setStatus("Amount must be greater than zero.", "bad");
-
-      setStatus("Encoding contract transaction call...");
-      const tx = prepareContractCall({
-        contract,
-        method: "transfer",
-        params: [to, amountBigInt]
-      });
-
-      setStatus("Prompt sent: Awaiting user signature in MetaMask...");
-      const res = await sendTransaction({ transaction: tx, account });
-      setStatus("Tx Broadcasted! Hash: " + res.transactionHash, "ok");
+      const tx = await contract.transfer(to, parsedAmount);
+      setStatus("Awaiting block confirmation: " + tx.hash, "ok");
       
+      await tx.wait();
+      setStatus("Transfer confirmed! Tx Hash: " + tx.hash, "ok");
       document.getElementById("toAddr").value = "";
       document.getElementById("toAmount").value = "";
       await updateBalance();
     } catch (err) {
-      setStatus("Transaction aborted: " + (err.message || err), "bad");
+      console.error(err);
+      setStatus("Transfer failed: " + (err?.data?.message || err?.message || err), "bad");
     }
   }
 
-  document.getElementById("btnConnect").addEventListener("click", connect);
+  if (window.ethereum) {
+    window.ethereum.on("accountsChanged", (accounts) => {
+      if (accounts.length > 0) {
+        currentAccount = accounts[0];
+        document.getElementById("addr").textContent = currentAccount;
+        updateBalance();
+      } else {
+        currentAccount = null;
+        document.getElementById("addr").textContent = "Not connected";
+        document.getElementById("bal").innerHTML = `0.00 <span style="font-size: 13px;">OWB</span>`;
+      }
+    });
+
+    window.ethereum.on("chainChanged", () => {
+      window.location.reload();
+    });
+  }
+
+  document.getElementById("btnConnect").addEventListener("click", connectWallet);
   document.getElementById("btnSwitch").addEventListener("click", switchNetwork);
   document.getElementById("btnRefresh").addEventListener("click", updateBalance);
   document.getElementById("btnTransfer").addEventListener("click", executeTransfer);
@@ -333,4 +352,3 @@
 
 </body>
 </html>
-
