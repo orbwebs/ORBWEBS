@@ -187,8 +187,6 @@
     "function transfer(address to, uint256 amount) returns (bool)"
   ];
 
-  let provider = null;
-  let signer = null;
   let currentAccount = null;
 
   const setStatus = (msg, type = "") => {
@@ -197,59 +195,75 @@
     box.textContent = msg;
   };
 
-  async function initProvider() {
-    if (!window.ethereum) {
-      setStatus("Error: MetaMask is not installed in your browser.", "bad");
-      return false;
+  function getEthereumProvider() {
+    if (window.ethereum?.providers?.length) {
+      return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
     }
-    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    return true;
+    return window.ethereum;
   }
 
   async function connectWallet() {
+    const eth = getEthereumProvider();
+    if (!eth) {
+      setStatus("Error: MetaMask extension not detected in this browser.", "bad");
+      return;
+    }
+
     try {
-      if (!await initProvider()) return;
-      setStatus("Connecting to MetaMask...");
-      const accounts = await provider.send("eth_requestAccounts", []);
+      setStatus("Requesting MetaMask access...");
+      // Native EIP-1102 / EIP-1193 call
+      const accounts = await eth.request({ method: "eth_requestAccounts" });
+      
       if (!accounts || accounts.length === 0) {
-        setStatus("No account selected.", "bad");
+        setStatus("No account selected or permission denied.", "bad");
         return;
       }
+
       currentAccount = accounts[0];
-      signer = provider.getSigner();
       document.getElementById("addr").textContent = currentAccount;
-      setStatus("Wallet connected: " + currentAccount.substring(0, 6) + "..." + currentAccount.substring(38), "ok");
-      
+      setStatus("Connected: " + currentAccount.substring(0, 6) + "..." + currentAccount.substring(38), "ok");
+
       await checkNetwork();
       await updateBalance();
     } catch (err) {
-      console.error(err);
-      setStatus("Connection error: " + (err.message || err), "bad");
+      console.error("Connection error details:", err);
+      if (err.message && err.message.includes("Broadcast channel")) {
+        setStatus("MetaMask internal channel paused. Click MetaMask icon in browser to unlock, then retry.", "bad");
+      } else {
+        setStatus("Connection error: " + (err.message || err), "bad");
+      }
     }
   }
 
   async function checkNetwork() {
-    if (!window.ethereum) return;
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-    if (chainId.toLowerCase() !== CHAIN_HEX.toLowerCase()) {
-      setStatus("Warning: Wrong network. Please switch to Base Sepolia.", "bad");
+    const eth = getEthereumProvider();
+    if (!eth) return;
+    try {
+      const chainId = await eth.request({ method: "eth_chainId" });
+      if (chainId.toLowerCase() !== CHAIN_HEX.toLowerCase()) {
+        setStatus("Warning: Connected to wrong network. Click 'Switch Network'.", "bad");
+      }
+    } catch (e) {
+      console.warn("Chain check warning:", e);
     }
   }
 
   async function switchNetwork() {
-    if (!window.ethereum) return setStatus("MetaMask not found.", "bad");
+    const eth = getEthereumProvider();
+    if (!eth) return setStatus("MetaMask not found.", "bad");
+
     try {
       setStatus("Switching network to Base Sepolia...");
-      await window.ethereum.request({
+      await eth.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: CHAIN_HEX }]
       });
       setStatus("Network active: Base Sepolia", "ok");
       await updateBalance();
     } catch (err) {
-      if (err.code === 4902) {
+      if (err.code === 4902 || err?.data?.orginalError?.code === 4902) {
         try {
-          await window.ethereum.request({
+          await eth.request({
             method: "wallet_addEthereumChain",
             params: [{
               chainId: CHAIN_HEX,
@@ -259,9 +273,9 @@
               blockExplorerUrls: ["https://sepolia.basescan.org"]
             }]
           });
-          setStatus("Base Sepolia added and selected.", "ok");
+          setStatus("Base Sepolia added and switched.", "ok");
         } catch (addErr) {
-          setStatus("Add chain error: " + (addErr.message || addErr), "bad");
+          setStatus("Failed adding network: " + (addErr.message || addErr), "bad");
         }
       } else {
         setStatus("Switch error: " + (err.message || err), "bad");
@@ -274,24 +288,27 @@
       setStatus("Connect wallet first.", "bad");
       return;
     }
+    const eth = getEthereumProvider();
     try {
-      setStatus("Reading balance from blockchain...");
+      setStatus("Reading balance...");
+      const provider = new ethers.providers.Web3Provider(eth, "any");
       const contract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, provider);
+      
       const decimals = await contract.decimals();
       const rawBal = await contract.balanceOf(currentAccount);
       const formatted = ethers.utils.formatUnits(rawBal, decimals);
-      
+
       document.getElementById("bal").innerHTML = `${formatted} <span style="font-size: 13px;">OWB</span>`;
-      setStatus("Balance updated.", "ok");
+      setStatus("State synced.", "ok");
     } catch (err) {
       console.error(err);
-      setStatus("Error reading contract: " + (err.message || err), "bad");
+      setStatus("Error reading balance: " + (err.message || err), "bad");
     }
   }
 
   async function executeTransfer() {
-    if (!currentAccount || !signer) {
-      setStatus("Please connect MetaMask first.", "bad");
+    if (!currentAccount) {
+      setStatus("Connect wallet first.", "bad");
       return;
     }
     const to = document.getElementById("toAddr").value.trim();
@@ -306,17 +323,21 @@
       return;
     }
 
+    const eth = getEthereumProvider();
     try {
-      setStatus("Preparing transaction in MetaMask...");
+      setStatus("Awaiting confirmation in MetaMask...");
+      const provider = new ethers.providers.Web3Provider(eth, "any");
+      const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDR, ERC20_ABI, signer);
+
       const decimals = await contract.decimals();
       const parsedAmount = ethers.utils.parseUnits(amountStr, decimals);
 
       const tx = await contract.transfer(to, parsedAmount);
-      setStatus("Awaiting block confirmation: " + tx.hash, "ok");
-      
+      setStatus("Transaction sent: " + tx.hash, "ok");
+
       await tx.wait();
-      setStatus("Transfer confirmed! Tx Hash: " + tx.hash, "ok");
+      setStatus("Confirmed on blockchain! Hash: " + tx.hash, "ok");
       document.getElementById("toAddr").value = "";
       document.getElementById("toAmount").value = "";
       await updateBalance();
@@ -326,9 +347,10 @@
     }
   }
 
-  if (window.ethereum) {
-    window.ethereum.on("accountsChanged", (accounts) => {
-      if (accounts.length > 0) {
+  const eth = getEthereumProvider();
+  if (eth) {
+    eth.on("accountsChanged", (accounts) => {
+      if (accounts && accounts.length > 0) {
         currentAccount = accounts[0];
         document.getElementById("addr").textContent = currentAccount;
         updateBalance();
@@ -339,7 +361,7 @@
       }
     });
 
-    window.ethereum.on("chainChanged", () => {
+    eth.on("chainChanged", () => {
       window.location.reload();
     });
   }
